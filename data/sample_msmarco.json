@@ -1,0 +1,802 @@
+[
+  {
+    "doc_id": "msmarco_001",
+    "title": "Solar Energy Advantages and Photovoltaics",
+    "category": "Renewable Energy",
+    "query": "What are the advantages of solar energy?",
+    "text": "Solar energy is a clean, renewable resource that reduces carbon emissions, lowers electricity bills, and requires minimal maintenance. Photovoltaic solar panels convert sunlight directly into direct current electricity using semiconductor materials like silicon. Solar power system deployment has grown exponentially worldwide due to falling equipment costs.",
+    "url": "https://en.wikipedia.org/wiki/Solar_energy"
+  },
+  {
+    "doc_id": "msmarco_002",
+    "title": "Photosynthesis Mechanics",
+    "category": "Biology",
+    "query": "How does photosynthesis work?",
+    "text": "Photosynthesis is the biochemical process used by plants, algae, and cyanobacteria to convert light energy into chemical energy stored in glucose. The process absorbs carbon dioxide and water, releasing oxygen as a byproduct. Chlorophyll pigments in chloroplasts absorb blue and red light spectrum wavelengths.",
+    "url": "https://en.wikipedia.org/wiki/Photosynthesis"
+  },
+  {
+    "doc_id": "msmarco_003",
+    "title": "Wind Energy Generation",
+    "category": "Renewable Energy",
+    "query": "How do wind turbines generate electricity?",
+    "text": "Wind turbines turn kinetic energy from wind into mechanical power using aerodynamic rotor blades. This mechanical power drives a internal generator that produces electricity. Offshore wind farms capture stronger, more consistent maritime winds compared to land-based wind farms.",
+    "url": "https://en.wikipedia.org/wiki/Wind_power"
+  },
+  {
+    "doc_id": "msmarco_004",
+    "title": "Artificial Intelligence and Machine Learning",
+    "category": "Technology",
+    "query": "What is machine learning?",
+    "text": "Machine learning is a subfield of artificial intelligence focused on algorithms that learn patterns from historical data to make predictions. Deep learning uses multi-layer neural networks for computer vision, natural language processing, and speech recognition tasks.",
+    "url": "https://en.wikipedia.org/wiki/Machine_learning"
+  },
+  {
+    "doc_id": "msmarco_005",
+    "title": "Human Heart Function and Cardiovascular System",
+    "category": "Health & Biology",
+    "query": "How does the human heart circulate blood?",
+    "text": "The human heart is a muscular organ that pumps oxygenated blood through the circulatory system. It consists of four chambers: the right atrium, right ventricle, left atrium, and left ventricle. Deoxygenated blood returns to the right atrium and flows into the lungs for re-oxygenation.",
+    "url": "https://en.wikipedia.org/wiki/Heart"
+  },
+  {
+    "doc_id": "msmarco_006",
+    "title": "Quantum Computing Fundamentals",
+    "category": "Physics & Technology",
+    "query": "What is a qubit in quantum computing?",
+    "text": "In quantum computing, a qubit (quantum bit) is the basic unit of information. Unlike classical binary bits that exist strictly as 0 or 1, qubits exploit quantum superposition to exist in states combining 0 and 1 simultaneously, enabling parallel quantum algorithm execution.",
+    "url": "https://en.wikipedia.org/wiki/Qubit"
+  },
+  {
+    "doc_id": "msmarco_007",
+    "title": "Water Cycle and Hydrological Processes",
+    "category": "Earth Science",
+    "query": "What are the main stages of the water cycle?",
+    "text": "The water cycle describes the continuous movement of water on, above, and below the Earth surface. Key processes include evaporation, transpiration, condensation, precipitation, and runoff. Solar energy heats ocean water to vaporize it into atmospheric moisture.",
+    "url": "https://en.wikipedia.org/wiki/Water_cycle"
+  },
+  {
+    "doc_id": "msmarco_008",
+    "title": "Gravitational Waves and General Relativity",
+    "category": "Physics",
+    "query": "What are gravitational waves?",
+    "text": "Gravitational waves are ripples in spacetime fabric caused by energetic cosmic events, such as colliding black holes or neutron stars. Predicted by Albert Einstein in 1916 under general relativity, they were first detected by LIGO in 2015.",
+    "url": "https://en.wikipedia.org/wiki/Gravitational_wave"
+  },
+  {
+    "doc_id": "msmarco_009",
+    "title": "Electric Vehicle Batteries and Lithium-Ion Technology",
+    "category": "Technology",
+    "query": "How do lithium-ion batteries work in electric vehicles?",
+    "text": "Lithium-ion batteries store electrical energy chemically. During discharge, lithium ions move from the negative anode to the positive cathode through an electrolyte, releasing electrons that power electric vehicle motors. Rechargeable cells provide high energy density.",
+    "url": "https://en.wikipedia.org/wiki/Lithium-ion_battery"
+  },
+  {
+    "doc_id": "msmarco_010",
+    "title": "Microbiology and Penicillin Antibiotics",
+    "category": "Medicine",
+    "query": "Who discovered penicillin?",
+    "text": "Penicillin was discovered in 1928 by Alexander Fleming when he observed Penicillium notatum mold inhibiting bacterial growth in a petri dish. It revolutionised modern medicine by providing an effective treatment for bacterial infections.",
+    "url": "https://en.wikipedia.org/wiki/Penicillin"
+  },
+  {
+    "doc_id": "msmarco_011",
+    "title": "MSMARCO Reference Document 11",
+    "category": "Technology",
+    "query": "Query topic 11 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #11. It discusses topic category 'Technology' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/11"
+  },
+  {
+    "doc_id": "msmarco_012",
+    "title": "MSMARCO Reference Document 12",
+    "category": "Health",
+    "query": "Query topic 12 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #12. It discusses topic category 'Health' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/12"
+  },
+  {
+    "doc_id": "msmarco_013",
+    "title": "MSMARCO Reference Document 13",
+    "category": "Energy",
+    "query": "Query topic 13 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #13. It discusses topic category 'Energy' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/13"
+  },
+  {
+    "doc_id": "msmarco_014",
+    "title": "MSMARCO Reference Document 14",
+    "category": "Environment",
+    "query": "Query topic 14 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #14. It discusses topic category 'Environment' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/14"
+  },
+  {
+    "doc_id": "msmarco_015",
+    "title": "MSMARCO Reference Document 15",
+    "category": "Science",
+    "query": "Query topic 15 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #15. It discusses topic category 'Science' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/15"
+  },
+  {
+    "doc_id": "msmarco_016",
+    "title": "MSMARCO Reference Document 16",
+    "category": "Technology",
+    "query": "Query topic 16 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #16. It discusses topic category 'Technology' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/16"
+  },
+  {
+    "doc_id": "msmarco_017",
+    "title": "MSMARCO Reference Document 17",
+    "category": "Health",
+    "query": "Query topic 17 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #17. It discusses topic category 'Health' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/17"
+  },
+  {
+    "doc_id": "msmarco_018",
+    "title": "MSMARCO Reference Document 18",
+    "category": "Energy",
+    "query": "Query topic 18 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #18. It discusses topic category 'Energy' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/18"
+  },
+  {
+    "doc_id": "msmarco_019",
+    "title": "MSMARCO Reference Document 19",
+    "category": "Environment",
+    "query": "Query topic 19 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #19. It discusses topic category 'Environment' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/19"
+  },
+  {
+    "doc_id": "msmarco_020",
+    "title": "MSMARCO Reference Document 20",
+    "category": "Science",
+    "query": "Query topic 20 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #20. It discusses topic category 'Science' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/20"
+  },
+  {
+    "doc_id": "msmarco_021",
+    "title": "MSMARCO Reference Document 21",
+    "category": "Technology",
+    "query": "Query topic 21 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #21. It discusses topic category 'Technology' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/21"
+  },
+  {
+    "doc_id": "msmarco_022",
+    "title": "MSMARCO Reference Document 22",
+    "category": "Health",
+    "query": "Query topic 22 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #22. It discusses topic category 'Health' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/22"
+  },
+  {
+    "doc_id": "msmarco_023",
+    "title": "MSMARCO Reference Document 23",
+    "category": "Energy",
+    "query": "Query topic 23 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #23. It discusses topic category 'Energy' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/23"
+  },
+  {
+    "doc_id": "msmarco_024",
+    "title": "MSMARCO Reference Document 24",
+    "category": "Environment",
+    "query": "Query topic 24 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #24. It discusses topic category 'Environment' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/24"
+  },
+  {
+    "doc_id": "msmarco_025",
+    "title": "MSMARCO Reference Document 25",
+    "category": "Science",
+    "query": "Query topic 25 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #25. It discusses topic category 'Science' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/25"
+  },
+  {
+    "doc_id": "msmarco_026",
+    "title": "MSMARCO Reference Document 26",
+    "category": "Technology",
+    "query": "Query topic 26 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #26. It discusses topic category 'Technology' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/26"
+  },
+  {
+    "doc_id": "msmarco_027",
+    "title": "MSMARCO Reference Document 27",
+    "category": "Health",
+    "query": "Query topic 27 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #27. It discusses topic category 'Health' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/27"
+  },
+  {
+    "doc_id": "msmarco_028",
+    "title": "MSMARCO Reference Document 28",
+    "category": "Energy",
+    "query": "Query topic 28 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #28. It discusses topic category 'Energy' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/28"
+  },
+  {
+    "doc_id": "msmarco_029",
+    "title": "MSMARCO Reference Document 29",
+    "category": "Environment",
+    "query": "Query topic 29 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #29. It discusses topic category 'Environment' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/29"
+  },
+  {
+    "doc_id": "msmarco_030",
+    "title": "MSMARCO Reference Document 30",
+    "category": "Science",
+    "query": "Query topic 30 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #30. It discusses topic category 'Science' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/30"
+  },
+  {
+    "doc_id": "msmarco_031",
+    "title": "MSMARCO Reference Document 31",
+    "category": "Technology",
+    "query": "Query topic 31 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #31. It discusses topic category 'Technology' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/31"
+  },
+  {
+    "doc_id": "msmarco_032",
+    "title": "MSMARCO Reference Document 32",
+    "category": "Health",
+    "query": "Query topic 32 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #32. It discusses topic category 'Health' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/32"
+  },
+  {
+    "doc_id": "msmarco_033",
+    "title": "MSMARCO Reference Document 33",
+    "category": "Energy",
+    "query": "Query topic 33 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #33. It discusses topic category 'Energy' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/33"
+  },
+  {
+    "doc_id": "msmarco_034",
+    "title": "MSMARCO Reference Document 34",
+    "category": "Environment",
+    "query": "Query topic 34 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #34. It discusses topic category 'Environment' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/34"
+  },
+  {
+    "doc_id": "msmarco_035",
+    "title": "MSMARCO Reference Document 35",
+    "category": "Science",
+    "query": "Query topic 35 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #35. It discusses topic category 'Science' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/35"
+  },
+  {
+    "doc_id": "msmarco_036",
+    "title": "MSMARCO Reference Document 36",
+    "category": "Technology",
+    "query": "Query topic 36 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #36. It discusses topic category 'Technology' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/36"
+  },
+  {
+    "doc_id": "msmarco_037",
+    "title": "MSMARCO Reference Document 37",
+    "category": "Health",
+    "query": "Query topic 37 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #37. It discusses topic category 'Health' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/37"
+  },
+  {
+    "doc_id": "msmarco_038",
+    "title": "MSMARCO Reference Document 38",
+    "category": "Energy",
+    "query": "Query topic 38 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #38. It discusses topic category 'Energy' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/38"
+  },
+  {
+    "doc_id": "msmarco_039",
+    "title": "MSMARCO Reference Document 39",
+    "category": "Environment",
+    "query": "Query topic 39 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #39. It discusses topic category 'Environment' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/39"
+  },
+  {
+    "doc_id": "msmarco_040",
+    "title": "MSMARCO Reference Document 40",
+    "category": "Science",
+    "query": "Query topic 40 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #40. It discusses topic category 'Science' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/40"
+  },
+  {
+    "doc_id": "msmarco_041",
+    "title": "MSMARCO Reference Document 41",
+    "category": "Technology",
+    "query": "Query topic 41 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #41. It discusses topic category 'Technology' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/41"
+  },
+  {
+    "doc_id": "msmarco_042",
+    "title": "MSMARCO Reference Document 42",
+    "category": "Health",
+    "query": "Query topic 42 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #42. It discusses topic category 'Health' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/42"
+  },
+  {
+    "doc_id": "msmarco_043",
+    "title": "MSMARCO Reference Document 43",
+    "category": "Energy",
+    "query": "Query topic 43 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #43. It discusses topic category 'Energy' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/43"
+  },
+  {
+    "doc_id": "msmarco_044",
+    "title": "MSMARCO Reference Document 44",
+    "category": "Environment",
+    "query": "Query topic 44 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #44. It discusses topic category 'Environment' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/44"
+  },
+  {
+    "doc_id": "msmarco_045",
+    "title": "MSMARCO Reference Document 45",
+    "category": "Science",
+    "query": "Query topic 45 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #45. It discusses topic category 'Science' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/45"
+  },
+  {
+    "doc_id": "msmarco_046",
+    "title": "MSMARCO Reference Document 46",
+    "category": "Technology",
+    "query": "Query topic 46 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #46. It discusses topic category 'Technology' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/46"
+  },
+  {
+    "doc_id": "msmarco_047",
+    "title": "MSMARCO Reference Document 47",
+    "category": "Health",
+    "query": "Query topic 47 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #47. It discusses topic category 'Health' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/47"
+  },
+  {
+    "doc_id": "msmarco_048",
+    "title": "MSMARCO Reference Document 48",
+    "category": "Energy",
+    "query": "Query topic 48 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #48. It discusses topic category 'Energy' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/48"
+  },
+  {
+    "doc_id": "msmarco_049",
+    "title": "MSMARCO Reference Document 49",
+    "category": "Environment",
+    "query": "Query topic 49 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #49. It discusses topic category 'Environment' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/49"
+  },
+  {
+    "doc_id": "msmarco_050",
+    "title": "MSMARCO Reference Document 50",
+    "category": "Science",
+    "query": "Query topic 50 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #50. It discusses topic category 'Science' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/50"
+  },
+  {
+    "doc_id": "msmarco_051",
+    "title": "MSMARCO Reference Document 51",
+    "category": "Technology",
+    "query": "Query topic 51 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #51. It discusses topic category 'Technology' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/51"
+  },
+  {
+    "doc_id": "msmarco_052",
+    "title": "MSMARCO Reference Document 52",
+    "category": "Health",
+    "query": "Query topic 52 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #52. It discusses topic category 'Health' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/52"
+  },
+  {
+    "doc_id": "msmarco_053",
+    "title": "MSMARCO Reference Document 53",
+    "category": "Energy",
+    "query": "Query topic 53 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #53. It discusses topic category 'Energy' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/53"
+  },
+  {
+    "doc_id": "msmarco_054",
+    "title": "MSMARCO Reference Document 54",
+    "category": "Environment",
+    "query": "Query topic 54 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #54. It discusses topic category 'Environment' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/54"
+  },
+  {
+    "doc_id": "msmarco_055",
+    "title": "MSMARCO Reference Document 55",
+    "category": "Science",
+    "query": "Query topic 55 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #55. It discusses topic category 'Science' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/55"
+  },
+  {
+    "doc_id": "msmarco_056",
+    "title": "MSMARCO Reference Document 56",
+    "category": "Technology",
+    "query": "Query topic 56 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #56. It discusses topic category 'Technology' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/56"
+  },
+  {
+    "doc_id": "msmarco_057",
+    "title": "MSMARCO Reference Document 57",
+    "category": "Health",
+    "query": "Query topic 57 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #57. It discusses topic category 'Health' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/57"
+  },
+  {
+    "doc_id": "msmarco_058",
+    "title": "MSMARCO Reference Document 58",
+    "category": "Energy",
+    "query": "Query topic 58 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #58. It discusses topic category 'Energy' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/58"
+  },
+  {
+    "doc_id": "msmarco_059",
+    "title": "MSMARCO Reference Document 59",
+    "category": "Environment",
+    "query": "Query topic 59 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #59. It discusses topic category 'Environment' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/59"
+  },
+  {
+    "doc_id": "msmarco_060",
+    "title": "MSMARCO Reference Document 60",
+    "category": "Science",
+    "query": "Query topic 60 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #60. It discusses topic category 'Science' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/60"
+  },
+  {
+    "doc_id": "msmarco_061",
+    "title": "MSMARCO Reference Document 61",
+    "category": "Technology",
+    "query": "Query topic 61 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #61. It discusses topic category 'Technology' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/61"
+  },
+  {
+    "doc_id": "msmarco_062",
+    "title": "MSMARCO Reference Document 62",
+    "category": "Health",
+    "query": "Query topic 62 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #62. It discusses topic category 'Health' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/62"
+  },
+  {
+    "doc_id": "msmarco_063",
+    "title": "MSMARCO Reference Document 63",
+    "category": "Energy",
+    "query": "Query topic 63 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #63. It discusses topic category 'Energy' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/63"
+  },
+  {
+    "doc_id": "msmarco_064",
+    "title": "MSMARCO Reference Document 64",
+    "category": "Environment",
+    "query": "Query topic 64 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #64. It discusses topic category 'Environment' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/64"
+  },
+  {
+    "doc_id": "msmarco_065",
+    "title": "MSMARCO Reference Document 65",
+    "category": "Science",
+    "query": "Query topic 65 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #65. It discusses topic category 'Science' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/65"
+  },
+  {
+    "doc_id": "msmarco_066",
+    "title": "MSMARCO Reference Document 66",
+    "category": "Technology",
+    "query": "Query topic 66 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #66. It discusses topic category 'Technology' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/66"
+  },
+  {
+    "doc_id": "msmarco_067",
+    "title": "MSMARCO Reference Document 67",
+    "category": "Health",
+    "query": "Query topic 67 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #67. It discusses topic category 'Health' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/67"
+  },
+  {
+    "doc_id": "msmarco_068",
+    "title": "MSMARCO Reference Document 68",
+    "category": "Energy",
+    "query": "Query topic 68 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #68. It discusses topic category 'Energy' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/68"
+  },
+  {
+    "doc_id": "msmarco_069",
+    "title": "MSMARCO Reference Document 69",
+    "category": "Environment",
+    "query": "Query topic 69 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #69. It discusses topic category 'Environment' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/69"
+  },
+  {
+    "doc_id": "msmarco_070",
+    "title": "MSMARCO Reference Document 70",
+    "category": "Science",
+    "query": "Query topic 70 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #70. It discusses topic category 'Science' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/70"
+  },
+  {
+    "doc_id": "msmarco_071",
+    "title": "MSMARCO Reference Document 71",
+    "category": "Technology",
+    "query": "Query topic 71 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #71. It discusses topic category 'Technology' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/71"
+  },
+  {
+    "doc_id": "msmarco_072",
+    "title": "MSMARCO Reference Document 72",
+    "category": "Health",
+    "query": "Query topic 72 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #72. It discusses topic category 'Health' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/72"
+  },
+  {
+    "doc_id": "msmarco_073",
+    "title": "MSMARCO Reference Document 73",
+    "category": "Energy",
+    "query": "Query topic 73 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #73. It discusses topic category 'Energy' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/73"
+  },
+  {
+    "doc_id": "msmarco_074",
+    "title": "MSMARCO Reference Document 74",
+    "category": "Environment",
+    "query": "Query topic 74 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #74. It discusses topic category 'Environment' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/74"
+  },
+  {
+    "doc_id": "msmarco_075",
+    "title": "MSMARCO Reference Document 75",
+    "category": "Science",
+    "query": "Query topic 75 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #75. It discusses topic category 'Science' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/75"
+  },
+  {
+    "doc_id": "msmarco_076",
+    "title": "MSMARCO Reference Document 76",
+    "category": "Technology",
+    "query": "Query topic 76 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #76. It discusses topic category 'Technology' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/76"
+  },
+  {
+    "doc_id": "msmarco_077",
+    "title": "MSMARCO Reference Document 77",
+    "category": "Health",
+    "query": "Query topic 77 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #77. It discusses topic category 'Health' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/77"
+  },
+  {
+    "doc_id": "msmarco_078",
+    "title": "MSMARCO Reference Document 78",
+    "category": "Energy",
+    "query": "Query topic 78 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #78. It discusses topic category 'Energy' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/78"
+  },
+  {
+    "doc_id": "msmarco_079",
+    "title": "MSMARCO Reference Document 79",
+    "category": "Environment",
+    "query": "Query topic 79 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #79. It discusses topic category 'Environment' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/79"
+  },
+  {
+    "doc_id": "msmarco_080",
+    "title": "MSMARCO Reference Document 80",
+    "category": "Science",
+    "query": "Query topic 80 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #80. It discusses topic category 'Science' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/80"
+  },
+  {
+    "doc_id": "msmarco_081",
+    "title": "MSMARCO Reference Document 81",
+    "category": "Technology",
+    "query": "Query topic 81 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #81. It discusses topic category 'Technology' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/81"
+  },
+  {
+    "doc_id": "msmarco_082",
+    "title": "MSMARCO Reference Document 82",
+    "category": "Health",
+    "query": "Query topic 82 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #82. It discusses topic category 'Health' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/82"
+  },
+  {
+    "doc_id": "msmarco_083",
+    "title": "MSMARCO Reference Document 83",
+    "category": "Energy",
+    "query": "Query topic 83 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #83. It discusses topic category 'Energy' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/83"
+  },
+  {
+    "doc_id": "msmarco_084",
+    "title": "MSMARCO Reference Document 84",
+    "category": "Environment",
+    "query": "Query topic 84 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #84. It discusses topic category 'Environment' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/84"
+  },
+  {
+    "doc_id": "msmarco_085",
+    "title": "MSMARCO Reference Document 85",
+    "category": "Science",
+    "query": "Query topic 85 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #85. It discusses topic category 'Science' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/85"
+  },
+  {
+    "doc_id": "msmarco_086",
+    "title": "MSMARCO Reference Document 86",
+    "category": "Technology",
+    "query": "Query topic 86 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #86. It discusses topic category 'Technology' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/86"
+  },
+  {
+    "doc_id": "msmarco_087",
+    "title": "MSMARCO Reference Document 87",
+    "category": "Health",
+    "query": "Query topic 87 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #87. It discusses topic category 'Health' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/87"
+  },
+  {
+    "doc_id": "msmarco_088",
+    "title": "MSMARCO Reference Document 88",
+    "category": "Energy",
+    "query": "Query topic 88 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #88. It discusses topic category 'Energy' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/88"
+  },
+  {
+    "doc_id": "msmarco_089",
+    "title": "MSMARCO Reference Document 89",
+    "category": "Environment",
+    "query": "Query topic 89 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #89. It discusses topic category 'Environment' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/89"
+  },
+  {
+    "doc_id": "msmarco_090",
+    "title": "MSMARCO Reference Document 90",
+    "category": "Science",
+    "query": "Query topic 90 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #90. It discusses topic category 'Science' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/90"
+  },
+  {
+    "doc_id": "msmarco_091",
+    "title": "MSMARCO Reference Document 91",
+    "category": "Technology",
+    "query": "Query topic 91 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #91. It discusses topic category 'Technology' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/91"
+  },
+  {
+    "doc_id": "msmarco_092",
+    "title": "MSMARCO Reference Document 92",
+    "category": "Health",
+    "query": "Query topic 92 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #92. It discusses topic category 'Health' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/92"
+  },
+  {
+    "doc_id": "msmarco_093",
+    "title": "MSMARCO Reference Document 93",
+    "category": "Energy",
+    "query": "Query topic 93 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #93. It discusses topic category 'Energy' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/93"
+  },
+  {
+    "doc_id": "msmarco_094",
+    "title": "MSMARCO Reference Document 94",
+    "category": "Environment",
+    "query": "Query topic 94 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #94. It discusses topic category 'Environment' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/94"
+  },
+  {
+    "doc_id": "msmarco_095",
+    "title": "MSMARCO Reference Document 95",
+    "category": "Science",
+    "query": "Query topic 95 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #95. It discusses topic category 'Science' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/95"
+  },
+  {
+    "doc_id": "msmarco_096",
+    "title": "MSMARCO Reference Document 96",
+    "category": "Technology",
+    "query": "Query topic 96 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #96. It discusses topic category 'Technology' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/96"
+  },
+  {
+    "doc_id": "msmarco_097",
+    "title": "MSMARCO Reference Document 97",
+    "category": "Health",
+    "query": "Query topic 97 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #97. It discusses topic category 'Health' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/97"
+  },
+  {
+    "doc_id": "msmarco_098",
+    "title": "MSMARCO Reference Document 98",
+    "category": "Energy",
+    "query": "Query topic 98 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #98. It discusses topic category 'Energy' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/98"
+  },
+  {
+    "doc_id": "msmarco_099",
+    "title": "MSMARCO Reference Document 99",
+    "category": "Environment",
+    "query": "Query topic 99 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #99. It discusses topic category 'Environment' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/99"
+  },
+  {
+    "doc_id": "msmarco_100",
+    "title": "MSMARCO Reference Document 100",
+    "category": "Science",
+    "query": "Query topic 100 regarding reference dataset passage",
+    "text": "This is representative MSMARCO-XI dataset passage text #100. It discusses topic category 'Science' with facts, domain terminology, and structured metadata for retrieval validation. Advanced RAG evaluation measures vector similarity precision across this content.",
+    "url": "https://msmarco.ai4bharat.org/docs/100"
+  }
+]
