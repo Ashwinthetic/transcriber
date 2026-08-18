@@ -34,17 +34,35 @@ stt_service: Optional[SpeechToTextService] = None
 llm_harness: Optional[LLMHarness] = None
 
 
+def get_retriever_inst() -> FAISSRetriever:
+    global retriever
+    if retriever is None:
+        retriever = FAISSRetriever()
+    return retriever
+
+
+def get_stt_inst() -> SpeechToTextService:
+    global stt_service
+    if stt_service is None:
+        stt_service = SpeechToTextService()
+    return stt_service
+
+
+def get_llm_inst() -> LLMHarness:
+    global llm_harness
+    if llm_harness is None:
+        llm_harness = LLMHarness()
+    return llm_harness
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Pre-warms FAISS vector index, embedding model, and STT services on server startup."""
-    global retriever, stt_service, llm_harness
     print("🚀 Pre-warming RAG Engine components...")
     t_start = time.perf_counter()
-    
-    stt_service = SpeechToTextService()
-    llm_harness = LLMHarness()
-    retriever = FAISSRetriever()
-    
+    get_stt_inst()
+    get_llm_inst()
+    get_retriever_inst()
     t_end = time.perf_counter()
     print(f"✅ RAG Engine pre-warmed successfully in {(t_end - t_start):.2f}s!")
     yield
@@ -99,13 +117,17 @@ async def process_voice_rag_query(req: QueryRequest):
     """Executes full end-to-end Voice RAG pipeline with sub-millisecond latency breakdown."""
     t_total_start = time.perf_counter()
 
+    stt_svc = get_stt_inst()
+    ret_engine = get_retriever_inst()
+    llm_engine = get_llm_inst()
+
     stt_lat = 0.0
     query_text = req.query or ""
 
     # 1. Speech-to-Text phase
     if req.audio_base64 or req.sample_prompt:
         audio_bytes = base64.b64decode(req.audio_base64) if req.audio_base64 else b"dummy_audio"
-        stt_res, stt_lat = await stt_service.transcribe_audio(
+        stt_res, stt_lat = await stt_svc.transcribe_audio(
             audio_bytes=audio_bytes,
             provider=req.stt_provider,
             sample_prompt=req.sample_prompt
@@ -142,7 +164,7 @@ async def process_voice_rag_query(req: QueryRequest):
         )
 
     # 3. FAISS Vector Retrieval phase
-    chunks, ret_lat = retriever.retrieve(
+    chunks, ret_lat = ret_engine.retrieve(
         query=query_text,
         strategy=req.strategy,
         top_k=req.top_k,
@@ -176,7 +198,7 @@ async def process_voice_rag_query(req: QueryRequest):
         )
 
     # 5. LLM Harness Answer Generation phase
-    llm_res, llm_lat = await llm_harness.generate_answer(
+    llm_res, llm_lat = await llm_engine.generate_answer(
         query=query_text,
         retrieved_chunks=chunks
     )
@@ -205,8 +227,9 @@ async def process_voice_rag_query(req: QueryRequest):
 @app.get("/api/strategies")
 def get_chunking_strategies():
     """Lists supported chunking strategies and index stats."""
+    ret_engine = get_retriever_inst()
     stats = {}
-    for k, v in retriever.strategy_indexes.items():
+    for k, v in ret_engine.strategy_indexes.items():
         stats[k] = {
             "total_chunks": v["total_chunks"],
             "faiss_indexed": True,
@@ -217,6 +240,7 @@ def get_chunking_strategies():
         "strategy_stats": stats,
         "default_strategy": "sentence_based"
     }
+
 
 
 @app.get("/api/benchmark")

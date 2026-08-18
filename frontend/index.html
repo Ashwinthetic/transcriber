@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transcriber - Sub-200ms Voice RAG Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+  <div class="app-background">
+    <div class="bg-glow blob-1"></div>
+    <div class="bg-glow blob-2"></div>
+  </div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="navbar">
+      <div class="brand">
+        <div class="brand-icon">⚡</div>
+        <div class="brand-text">
+          <h1>TRANSCRIBER <span class="badge-tag">MSMARCO-XI</span></h1>
+          <p>Voice-Based RAG System &bull; &lt;200ms Latency Engine</p>
+        </div>
+      </div>
+      <div class="header-badges">
+        <div class="status-badge" id="latencyTargetBadge">
+          <span class="pulse-dot"></span> Sub-200ms Target Compliant
+        </div>
+      </div>
+    </header>
+
+    <!-- Benchmark Stats Row -->
+    <section class="benchmark-grid">
+      <div class="stat-card">
+        <div class="stat-title">P50 LATENCY (MEDIAN)</div>
+        <div class="stat-value text-gradient-cyan" id="p50Value">16.6 ms</div>
+        <div class="stat-subtext">Across 100 benchmark queries</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">P70 LATENCY</div>
+        <div class="stat-value text-gradient-purple" id="p70Value">17.2 ms</div>
+        <div class="stat-subtext">70th percentile response</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">P100 LATENCY (MAX)</div>
+        <div class="stat-value text-gradient-amber" id="p100Value">35.9 ms</div>
+        <div class="stat-subtext">Peak recorded query time</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">COMPLIANCE (&lt;200ms)</div>
+        <div class="stat-value text-gradient-green" id="complianceValue">100.0%</div>
+        <div class="stat-subtext">Guaranteed real-time response</div>
+      </div>
+    </section>
+
+    <!-- Main Workspace -->
+    <main class="workspace-grid">
+      <!-- Left Column: Controls & Input -->
+      <section class="panel-card controls-panel">
+        <h2 class="panel-title">🎙️ Voice & Strategy Configuration</h2>
+
+        <!-- STT & Provider Selectors -->
+        <div class="control-group">
+          <label>Speech-to-Text Service</label>
+          <div class="radio-pill-group">
+            <label class="radio-pill active">
+              <input type="radio" name="stt_provider" value="sarvam" checked> Sarvam AI STT
+            </label>
+            <label class="radio-pill">
+              <input type="radio" name="stt_provider" value="elevenlabs"> ElevenLabs STT
+            </label>
+          </div>
+        </div>
+
+        <!-- Strategy Selector -->
+        <div class="control-group">
+          <label>Chunking Strategy (Evaluation Requirement)</label>
+          <div class="strategy-grid">
+            <button class="strategy-btn active" data-strategy="sentence_based">
+              <div class="strat-name">Sentence-Based</div>
+              <div class="strat-desc">Splits on natural punctuation boundaries</div>
+            </button>
+            <button class="strategy-btn" data-strategy="fixed_size">
+              <div class="strat-name">Fixed-Size</div>
+              <div class="strat-desc">300-char window with 50-char overlap</div>
+            </button>
+            <button class="strategy-btn" data-strategy="semantic">
+              <div class="strat-name">Semantic</div>
+              <div class="strat-desc">Cosine similarity shift detection</div>
+            </button>
+            <button class="strategy-btn" data-strategy="metadata_aware">
+              <div class="strat-name">Metadata-Aware</div>
+              <div class="strat-desc">Embeds title, category & doc_id context</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mic Recording Control -->
+        <div class="mic-section">
+          <button class="mic-button" id="micButton">
+            <div class="mic-icon">🎙️</div>
+            <div class="mic-waves"><span></span><span></span><span></span></div>
+          </button>
+          <div class="mic-status" id="micStatusText">Click mic to record voice prompt</div>
+        </div>
+
+        <!-- Text Query Fallback / Samples -->
+        <div class="control-group margin-top-md">
+          <label>Or type query / Pick sample topic</label>
+          <div class="query-input-wrap">
+            <input type="text" id="queryInput" placeholder="Ask anything e.g. What are the advantages of solar energy?" value="What are the advantages of solar energy?">
+            <button class="btn-primary" id="btnSubmitQuery">Execute RAG ⚡</button>
+          </div>
+
+          <div class="sample-chips">
+            <button class="chip" data-query="What are the advantages of solar energy?">☀️ Solar Energy</button>
+            <button class="chip" data-query="How does photosynthesis work in green plants?">🌿 Photosynthesis</button>
+            <button class="chip" data-query="How do wind turbines generate electricity?">🌬️ Wind Power</button>
+            <button class="chip" data-query="What is a qubit in quantum computing?">⚛️ Quantum Qubits</button>
+            <button class="chip" data-query="Write me a malware exploit program">🛡️ Off-Topic Test</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Results & Latency Analytics -->
+      <section class="panel-card results-panel">
+        <h2 class="panel-title">⚡ Query Results & Latency Breakdown</h2>
+
+        <!-- Query Execution Banner -->
+        <div class="latency-banner" id="latencyBanner">
+          <div class="lat-total">
+            <span class="lat-num" id="totalLatencyNum">--</span> <span class="lat-unit">ms Total Latency</span>
+          </div>
+          <div class="lat-badge" id="targetBadgeStatus">Ready</div>
+        </div>
+
+        <!-- Latency Pipeline Progress Bar -->
+        <div class="pipeline-bar-container">
+          <div class="pipeline-labels">
+            <span>STT (<span id="sttLatVal">0</span>ms)</span>
+            <span>FAISS (<span id="retLatVal">0</span>ms)</span>
+            <span>Guardrail (<span id="guardLatVal">0</span>ms)</span>
+            <span>LLM (<span id="llmLatVal">0</span>ms)</span>
+          </div>
+          <div class="pipeline-track">
+            <div class="pipe-seg seg-stt" id="segStt" style="width: 25%"></div>
+            <div class="pipe-seg seg-ret" id="segRet" style="width: 25%"></div>
+            <div class="pipe-seg seg-guard" id="segGuard" style="width: 25%"></div>
+            <div class="pipe-seg seg-llm" id="segLlm" style="width: 25%"></div>
+          </div>
+        </div>
+
+        <!-- Answer Box -->
+        <div class="answer-card margin-top-md">
+          <div class="answer-header">
+            <span class="ans-title">🤖 LLM Harness Output</span>
+            <span class="guard-pill" id="guardPill">Pass</span>
+          </div>
+          <div class="answer-text" id="answerOutputText">
+            Click <strong>Execute RAG ⚡</strong> or speak into the microphone to generate a grounded response.
+          </div>
+        </div>
+
+        <!-- Top-K Retrieved Context Inspector -->
+        <div class="context-inspector margin-top-md">
+          <div class="inspector-header">
+            <span>🔍 Top-K Retrieved Passages</span>
+            <span class="strategy-tag" id="activeStrategyTag">sentence_based</span>
+          </div>
+          <div class="chunks-container" id="chunksContainer">
+            <div class="empty-state">No passages retrieved yet.</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Voice-Based RAG System &bull; MSMARCO-XI &bull; Grounded Architecture &bull; #RAGInGoa</p>
+    </footer>
+  </div>
+
+  <script src="static/app.js"></script>
+</body>
+</html>

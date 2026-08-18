@@ -1,0 +1,152 @@
+{
+  "status": "success",
+  "timestamp": "2026-08-19 00:01:29",
+  "total_queries_tested": 100,
+  "P50_ms": 16.61,
+  "P70_ms": 17.23,
+  "P100_ms": 35.95,
+  "target_ms": 200.0,
+  "under_200ms_percentage": 100.0,
+  "per_strategy_breakdown": {
+    "fixed_size": {
+      "count": 25,
+      "p50_ms": 16.77,
+      "p70_ms": 17.14,
+      "p100_ms": 27.77,
+      "under_200ms_pct": 100.0
+    },
+    "sentence_based": {
+      "count": 25,
+      "p50_ms": 16.58,
+      "p70_ms": 17.65,
+      "p100_ms": 26.5,
+      "under_200ms_pct": 100.0
+    },
+    "semantic": {
+      "count": 25,
+      "p50_ms": 15.95,
+      "p70_ms": 17.15,
+      "p100_ms": 23.68,
+      "under_200ms_pct": 100.0
+    },
+    "metadata_aware": {
+      "count": 25,
+      "p50_ms": 16.49,
+      "p70_ms": 16.89,
+      "p100_ms": 35.95,
+      "under_200ms_pct": 100.0
+    }
+  },
+  "sample_evaluations": [
+    {
+      "query_id": 1,
+      "query": "What are the advantages of solar energy?",
+      "strategy": "fixed_size",
+      "stt_ms": 0.0,
+      "retrieval_ms": 21.81,
+      "guardrail_ms": 0.56,
+      "llm_ms": 0.04,
+      "total_ms": 22.48,
+      "under_200ms": true
+    },
+    {
+      "query_id": 2,
+      "query": "How does photosynthesis work in green plants?",
+      "strategy": "sentence_based",
+      "stt_ms": 0.0,
+      "retrieval_ms": 26.31,
+      "guardrail_ms": 0.11,
+      "llm_ms": 0.02,
+      "total_ms": 26.5,
+      "under_200ms": true
+    },
+    {
+      "query_id": 3,
+      "query": "How do wind turbines generate electricity?",
+      "strategy": "semantic",
+      "stt_ms": 0.0,
+      "retrieval_ms": 23.47,
+      "guardrail_ms": 0.07,
+      "llm_ms": 0.05,
+      "total_ms": 23.68,
+      "under_200ms": true
+    },
+    {
+      "query_id": 4,
+      "query": "What is machine learning in artificial intelligence?",
+      "strategy": "metadata_aware",
+      "stt_ms": 0.0,
+      "retrieval_ms": 18.65,
+      "guardrail_ms": 0.11,
+      "llm_ms": 0.01,
+      "total_ms": 18.82,
+      "under_200ms": true
+    },
+    {
+      "query_id": 5,
+      "query": "How does the human heart circulate blood?",
+      "strategy": "fixed_size",
+      "stt_ms": 0.0,
+      "retrieval_ms": 17.21,
+      "guardrail_ms": 0.04,
+      "llm_ms": 0.01,
+      "total_ms": 17.3,
+      "under_200ms": true
+    },
+    {
+      "query_id": 6,
+      "query": "What is a qubit in quantum computing?",
+      "strategy": "sentence_based",
+      "stt_ms": 0.0,
+      "retrieval_ms": 14.68,
+      "guardrail_ms": 0.05,
+      "llm_ms": 0.02,
+      "total_ms": 14.8,
+      "under_200ms": true
+    },
+    {
+      "query_id": 7,
+      "query": "What are the main stages of the water cycle?",
+      "strategy": "semantic",
+      "stt_ms": 0.0,
+      "retrieval_ms": 14.1,
+      "guardrail_ms": 0.06,
+      "llm_ms": 0.01,
+      "total_ms": 14.19,
+      "under_200ms": true
+    },
+    {
+      "query_id": 8,
+      "query": "What are gravitational waves in physics?",
+      "strategy": "metadata_aware",
+      "stt_ms": 0.0,
+      "retrieval_ms": 15.89,
+      "guardrail_ms": 0.03,
+      "llm_ms": 0.01,
+      "total_ms": 15.97,
+      "under_200ms": true
+    },
+    {
+      "query_id": 9,
+      "query": "How do lithium-ion batteries work in electric vehicles?",
+      "strategy": "fixed_size",
+      "stt_ms": 0.0,
+      "retrieval_ms": 19.22,
+      "guardrail_ms": 0.05,
+      "llm_ms": 0.03,
+      "total_ms": 19.34,
+      "under_200ms": true
+    },
+    {
+      "query_id": 10,
+      "query": "Who discovered penicillin in microbiology?",
+      "strategy": "sentence_based",
+      "stt_ms": 0.0,
+      "retrieval_ms": 17.58,
+      "guardrail_ms": 0.1,
+      "llm_ms": 0.01,
+      "total_ms": 17.74,
+      "under_200ms": true
+    }
+  ]
+}
