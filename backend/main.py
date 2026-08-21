@@ -271,6 +271,15 @@ frontend_dir = os.path.join(os.path.dirname(__file__), "..", "frontend")
 if os.path.exists(frontend_dir):
     app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
 
+    @app.get("/style.css")
+    def serve_css():
+        return FileResponse(os.path.join(frontend_dir, "style.css"), media_type="text/css")
+
+    @app.get("/app.js")
+    def serve_js():
+        return FileResponse(os.path.join(frontend_dir, "app.js"), media_type="application/javascript")
+
     @app.get("/")
     def serve_frontend_index():
         return FileResponse(os.path.join(frontend_dir, "index.html"))
+

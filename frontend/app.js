@@ -32,7 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const p100Value = document.getElementById('p100Value');
   const complianceValue = document.getElementById('complianceValue');
 
-  // App State
+  // App State & API Configuration
+  const API_BASE = (window.location.protocol.startsWith('http') && (window.location.port === '8000' || window.location.port === ''))
+    ? ''
+    : 'http://127.0.0.1:8000';
+
   let activeStrategy = 'sentence_based';
   let activeSttProvider = 'sarvam';
   let isRecording = false;
@@ -42,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 1. Fetch Benchmark Stats on load
   async function loadBenchmarkStats() {
     try {
-      const res = await fetch('/api/benchmark');
+      const res = await fetch(`${API_BASE}/api/benchmark`);
       if (res.ok) {
         const data = await res.json();
         p50Value.textContent = `${data.P50_ms} ms`;
@@ -51,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         complianceValue.textContent = `${data.under_200ms_percentage}%`;
       }
     } catch (e) {
-      console.warn("Could not load benchmark stats:", e);
+      console.warn("Could not load benchmark stats from backend:", e);
     }
   }
   loadBenchmarkStats();
@@ -162,19 +166,19 @@ document.addEventListener('DOMContentLoaded', () => {
         top_k: 3
       };
 
-      const res = await fetch('/api/query', {
+      const res = await fetch(`${API_BASE}/api/query`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
-      if (!res.ok) throw new Error("API request failed");
+      if (!res.ok) throw new Error(`API error: ${res.status} ${res.statusText}`);
 
       const data = await res.json();
       renderQueryResponse(data);
     } catch (err) {
-      console.error(err);
-      answerOutputText.textContent = "Error executing query. Please check backend connection.";
+      console.error("Query Execution Error:", err);
+      answerOutputText.innerHTML = `⚠️ <strong>Connection Notice:</strong> Unable to connect to backend (${err.message}).<br><br>Please make sure the backend server is running on <code>http://127.0.0.1:8000</code>.`;
     } finally {
       btnSubmitQuery.disabled = false;
       micStatusText.textContent = "Click mic to record voice prompt";
