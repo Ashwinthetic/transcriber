@@ -68,7 +68,21 @@ export default function Home() {
         setResult(data);
         setQueryText(data.query);
       } catch {
-        console.error("Query failed");
+        setResult({
+          query: q || "Voice Query",
+          answer: "Unable to connect to backend server. Please verify backend service on port 8000 is active.",
+          grounded: false,
+          grounding_score: 0.0,
+          stt_latency_ms: 0,
+          retrieval_latency_ms: 0,
+          guardrail_latency_ms: 0,
+          llm_latency_ms: 0,
+          total_latency_ms: 0,
+          latency_target_met: false,
+          stt_provider: sttProvider,
+          strategy_used: activeStrategy,
+          retrieved_chunks: []
+        });
       } finally {
         setLoading(false);
       }
