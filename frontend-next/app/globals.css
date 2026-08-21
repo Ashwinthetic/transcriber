@@ -5,37 +5,45 @@
 @import url('https://fonts.googleapis.com/css2?family=Rozha+One&family=Space+Grotesk:wght@400;500;600;700&family=Yatra+One&display=swap');
 
 :root {
-  /* HHGoa Matchbox Palette */
-  --cream: #FFF3DC;
-  --parchment: #F5ECD7;
-  --warm-gray: #EADCC0;
-  --ink-black: #17130E;
-  --chili-red: #E23B22;
-  --mustard: #F2B705;
-  --forest-green: #1E4D2B;
-  --burnt-orange: #D4722A;
-  --deep-brown: #3D2B1F;
-  --muted-sage: #8B9D77;
+  /* Hacker House Goa Emerald Palette */
+  --goa-emerald: #0A663A;
+  --goa-dark-green: #064726;
+  --goa-card-green: #0C5E36;
+  --goa-card-inner: #074B2A;
+  --goa-sun-yellow: #FDE100;
+  --goa-neon-pink: #FF2E93;
+  --goa-sand-white: #F5F7EB;
+  --goa-sage-text: #B4D4C0;
+  --goa-outline-black: #042413;
+
+  /* Theme Mapping */
+  --cream: #0A663A;
+  --parchment: var(--goa-card-inner);
+  --warm-gray: #0E7543;
+  --ink-black: var(--goa-outline-black);
+  --chili-red: var(--goa-neon-pink);
+  --mustard: var(--goa-sun-yellow);
+  --forest-green: #00E676;
 
   /* Semantic */
-  --bg-primary: var(--cream);
-  --bg-card: #FFFFFF;
-  --bg-card-alt: var(--parchment);
-  --text-primary: var(--ink-black);
-  --text-secondary: #5C5347;
-  --text-muted: #8C7F72;
-  --accent-primary: var(--chili-red);
-  --accent-secondary: var(--mustard);
-  --accent-tertiary: var(--forest-green);
-  --border-color: rgba(23, 19, 14, 0.12);
-  --border-strong: var(--ink-black);
+  --bg-primary: var(--goa-emerald);
+  --bg-card: var(--goa-card-green);
+  --bg-card-alt: var(--goa-card-inner);
+  --text-primary: var(--goa-sand-white);
+  --text-secondary: #D4E8DC;
+  --text-muted: var(--goa-sage-text);
+  --accent-primary: var(--goa-sun-yellow);
+  --accent-secondary: var(--goa-neon-pink);
+  --accent-tertiary: #00E676;
+  --border-color: #084D2B;
+  --border-strong: var(--goa-outline-black);
 
   /* Retro Shadow Offsets */
   --shadow-sm: 3px 3px 0 var(--ink-black);
   --shadow-md: 5px 5px 0 var(--ink-black);
-  --shadow-red: 4px 4px 0 var(--chili-red);
-  --shadow-mustard: 4px 4px 0 var(--mustard);
-  --shadow-green: 4px 4px 0 var(--forest-green);
+  --shadow-red: 4px 4px 0 var(--goa-neon-pink);
+  --shadow-mustard: 4px 4px 0 var(--goa-sun-yellow);
+  --shadow-green: 4px 4px 0 #00E676;
 
   /* Typography */
   --font-heading: 'Rozha One', serif;

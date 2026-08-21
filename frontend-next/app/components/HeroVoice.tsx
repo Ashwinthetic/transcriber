@@ -40,7 +40,7 @@ export default function HeroVoice({
           : 4;
         const y = (canvas.height - h) / 2;
 
-        ctx.fillStyle = speaking ? "#E23B22" : "#EADCC0";
+        ctx.fillStyle = speaking ? "#FF2E93" : "#FDE100";
         ctx.beginPath();
         ctx.roundRect(x, y, barW, h, 2);
         ctx.fill();

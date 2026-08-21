@@ -21,19 +21,19 @@
   width: 88px;
   height: 88px;
   border-radius: 50%;
-  border: 3px solid var(--ink-black);
-  background: var(--cream);
+  border: 3.5px solid var(--ink-black);
+  background: var(--goa-sun-yellow);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 3px 3px 0 var(--ink-black);
+  box-shadow: 4px 4px 0 var(--ink-black);
   transition: all 0.2s ease;
 }
 
 .micRing.recording {
-  border-color: var(--chili-red);
-  background: rgba(226, 59, 34, 0.06);
-  box-shadow: 3px 3px 0 var(--chili-red);
+  border-color: var(--goa-neon-pink);
+  background: var(--goa-neon-pink);
+  box-shadow: 4px 4px 0 var(--goa-sun-yellow);
 }
 
 .micBtn {
@@ -56,17 +56,18 @@
 
 .caption {
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--goa-sand-white);
+  font-weight: 600;
 }
 
 .liveSpeechBox {
   width: 100%;
   max-width: 520px;
-  background: #ffffff;
-  border: 2px solid var(--chili-red);
+  background: var(--goa-card-inner);
+  border: 2px solid var(--goa-sun-yellow);
   border-radius: var(--radius-sm);
   padding: 12px 16px;
-  box-shadow: 3px 3px 0 var(--chili-red);
+  box-shadow: 3px 3px 0 var(--goa-sun-yellow);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -75,7 +76,7 @@
 .liveBadge {
   font-size: 10px;
   font-weight: 800;
-  color: var(--chili-red);
+  color: var(--goa-sun-yellow);
   letter-spacing: 1px;
 }
 
@@ -83,5 +84,5 @@
   font-size: 15px;
   font-style: italic;
   font-weight: 600;
-  color: var(--ink-black);
+  color: var(--goa-sand-white);
 }
