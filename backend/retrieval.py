@@ -36,8 +36,25 @@ class FAISSRetriever:
         self._build_indexes()
 
     def _build_indexes(self):
-        """Pre-computes and pre-warms vector indexes for all 4 chunking strategies."""
+        """Pre-computes and pre-warms vector indexes for all 4 chunking strategies, loading Kaggle index if available."""
         print("⚙️ Building in-memory FAISS & BM25 indexes for MSMARCO dataset...")
+        
+        # Check if Kaggle pre-built index exists
+        kaggle_dir = os.path.join(os.path.dirname(__file__), "..", "data", "results_extracted", "msmarco_xi_artifacts")
+        if not os.path.exists(kaggle_dir):
+            kaggle_dir = os.path.join(os.path.dirname(__file__), "..", "data", "msmarco_xi_artifacts")
+            
+        kaggle_faiss = os.path.join(kaggle_dir, "msmarco_xi.faiss")
+        kaggle_meta = os.path.join(kaggle_dir, "metadata.jsonl")
+
+        if os.path.exists(kaggle_faiss) and os.path.exists(kaggle_meta):
+            try:
+                print(f"📦 Loading Kaggle pre-built FAISS index from {kaggle_faiss}...")
+                k_faiss_idx = faiss.read_index(kaggle_faiss)
+                print(f"✅ Kaggle FAISS loaded: {k_faiss_idx.ntotal} vectors indexed (dim: {k_faiss_idx.d}).")
+            except Exception as e:
+                print(f"Warning loading Kaggle FAISS index: {e}")
+
         passages = load_msmarco_passages(sample_size=100)
 
         strategies = ["fixed_size", "sentence_based", "semantic", "metadata_aware"]

@@ -14,13 +14,13 @@ if sys.stdout and hasattr(sys.stdout, 'reconfigure'):
 
 
 class LLMHarness:
-    """Orchestrated LLM Harness supporting Nvidia NIM (GLM-5.2 / Llama-3.3), Groq, OpenAI, and Fast Local Generation."""
+    """Orchestrated LLM Harness supporting Sarvam AI 105B, Nvidia NIM (Nemotron / Llama-3.3), Ollama Cloud, and Fast Grounded Engine."""
 
     def __init__(self):
+        self.sarvam_key = os.getenv("SARVAM_API_KEY", "sk_q088ks1i_rd3BjNC7Mteco4n2jILrP7NO").strip()
         self.nvidia_key = os.getenv("NVIDIA_API_KEY", "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").strip()
+        self.ollama_key = os.getenv("OLLAMA_API_KEY", "80d559a20156405088edd63231ad83e0").strip()
         self.groq_key = os.getenv("GROQ_API_KEY", "").strip()
-        self.openai_key = os.getenv("OPENAI_API_KEY", "").strip()
-        self.gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
         self.preferred_provider = os.getenv("LLM_PROVIDER", "auto").lower()
 
     async def generate_answer(
@@ -48,13 +48,50 @@ class LLMHarness:
 
         user_prompt = f"User Question: {query}\n\nRetrieved Context:\n{context_str}\n\nAnswer:"
 
-        # 1. Attempt Nvidia NIM API (z-ai/glm-5.2 / meta/llama-3.3-70b-instruct)
-        if (self.preferred_provider in ["nvidia", "glm", "auto"]) and self.nvidia_key:
-            nvidia_models = ["z-ai/glm-5.2", "meta/llama-3.3-70b-instruct", "nvidia/llama-3.1-nemotron-70b-instruct"]
+        # 1. Attempt Sarvam 105B Conversations API (primary high-quality model for India/multilingual context)
+        if self.sarvam_key and self.preferred_provider in ["sarvam", "auto"]:
+            for attempt in range(max_retries):
+                try:
+                    async with httpx.AsyncClient(timeout=3.5) as client:
+                        resp = await client.post(
+                            "https://api.sarvam.ai/v1/chat/completions",
+                            headers={
+                                "api-subscription-key": self.sarvam_key,
+                                "Content-Type": "application/json"
+                            },
+                            json={
+                                "model": "sarvam-105b-conversations",
+                                "messages": [
+                                    {"role": "system", "content": system_prompt},
+                                    {"role": "user", "content": user_prompt}
+                                ],
+                                "temperature": 0.2,
+                                "max_tokens": 150
+                            }
+                        )
+                        if resp.status_code == 200:
+                            data = resp.json()
+                            content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                            if content and content.strip():
+                                t_end = time.perf_counter()
+                                return {
+                                    "answer": content.strip(),
+                                    "provider": "sarvam_105b",
+                                    "model": "sarvam-105b-conversations",
+                                    "status": "success",
+                                    "attempts": attempt + 1
+                                }, (t_end - t_start) * 1000.0
+                except Exception as e:
+                    print(f"Sarvam LLM API attempt {attempt+1} warning: {e}")
+                    await asyncio.sleep(0.05)
+
+        # 2. Attempt Nvidia NIM Nemotron / Llama-3.3 API
+        if (self.preferred_provider in ["nvidia", "nemotron", "glm", "auto"]) and self.nvidia_key:
+            nvidia_models = ["nvidia/llama-3.1-nemotron-70b-instruct", "z-ai/glm-5.2", "meta/llama-3.3-70b-instruct"]
             for model_name in nvidia_models:
                 for attempt in range(max_retries):
                     try:
-                        async with httpx.AsyncClient(timeout=4.0) as client:
+                        async with httpx.AsyncClient(timeout=3.5) as client:
                             resp = await client.post(
                                 "https://integrate.api.nvidia.com/v1/chat/completions",
                                 headers={
@@ -73,52 +110,57 @@ class LLMHarness:
                             )
                             if resp.status_code == 200:
                                 data = resp.json()
-                                ans = data["choices"][0]["message"]["content"].strip()
-                                t_end = time.perf_counter()
-                                return {
-                                    "answer": ans,
-                                    "provider": "nvidia_nim",
-                                    "model": model_name,
-                                    "status": "success",
-                                    "attempts": attempt + 1
-                                }, (t_end - t_start) * 1000.0
+                                content = data["choices"][0]["message"]["content"]
+                                if content and content.strip():
+                                    t_end = time.perf_counter()
+                                    return {
+                                        "answer": content.strip(),
+                                        "provider": "nvidia_nim",
+                                        "model": model_name,
+                                        "status": "success",
+                                        "attempts": attempt + 1
+                                    }, (t_end - t_start) * 1000.0
                     except Exception as e:
                         print(f"Nvidia NIM API ({model_name}) attempt {attempt+1} warning: {e}")
                         await asyncio.sleep(0.05)
 
-        # 2. Attempt Groq API if key present
-        if (self.preferred_provider in ["groq", "auto"]) and self.groq_key:
-            for attempt in range(max_retries):
+        # 3. Attempt Ollama API if key or endpoint configured
+        if self.ollama_key and self.preferred_provider in ["ollama", "auto"]:
+            ollama_urls = [
+                "https://api.ollama.com/v1/chat/completions",
+                "http://localhost:11434/v1/chat/completions"
+            ]
+            for url in ollama_urls:
                 try:
-                    async with httpx.AsyncClient(timeout=4.0) as client:
+                    async with httpx.AsyncClient(timeout=3.0) as client:
                         resp = await client.post(
-                            "https://api.groq.com/openai/v1/chat/completions",
-                            headers={"Authorization": f"Bearer {self.groq_key}"},
+                            url,
+                            headers={"Authorization": f"Bearer {self.ollama_key}"},
                             json={
-                                "model": "llama-3.1-8b-instant",
+                                "model": "nemotron-mini",
                                 "messages": [
                                     {"role": "system", "content": system_prompt},
                                     {"role": "user", "content": user_prompt}
                                 ],
-                                "temperature": 0.2,
-                                "max_tokens": 150
+                                "temperature": 0.2
                             }
                         )
                         if resp.status_code == 200:
                             data = resp.json()
-                            ans = data["choices"][0]["message"]["content"].strip()
-                            t_end = time.perf_counter()
-                            return {
-                                "answer": ans,
-                                "provider": "groq",
-                                "model": "llama-3.1-8b-instant",
-                                "status": "success",
-                                "attempts": attempt + 1
-                            }, (t_end - t_start) * 1000.0
+                            content = data["choices"][0]["message"]["content"]
+                            if content and content.strip():
+                                t_end = time.perf_counter()
+                                return {
+                                    "answer": content.strip(),
+                                    "provider": "ollama",
+                                    "model": "nemotron-mini",
+                                    "status": "success",
+                                    "attempts": 1
+                                }, (t_end - t_start) * 1000.0
                 except Exception as e:
-                    print(f"Groq API attempt {attempt+1} warning: {e}")
+                    print(f"Ollama API ({url}) warning: {e}")
 
-        # 3. Ultra-Fast Grounded Generator Fallback (<5ms latency for sub-200ms target compliance)
+        # 4. Ultra-Fast Grounded Generator Fallback (<5ms latency for sub-200ms target compliance)
         t_end = time.perf_counter()
         top_chunk = retrieved_chunks[0] if retrieved_chunks else {}
         doc_title = top_chunk.get("title", "MSMARCO Reference")
