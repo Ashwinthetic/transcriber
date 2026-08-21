@@ -1,0 +1,60 @@
+.heroWrapper {
+  background: var(--bg-card);
+  border: 2.5px solid var(--ink-black);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-red);
+  padding: 32px;
+}
+
+.heroInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  background: var(--parchment);
+  border: 2px dashed var(--warm-gray);
+  border-radius: var(--radius-md);
+}
+
+.micRing {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  border: 3px solid var(--ink-black);
+  background: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 3px 3px 0 var(--ink-black);
+  transition: all 0.2s ease;
+}
+
+.micRing.recording {
+  border-color: var(--chili-red);
+  background: rgba(226, 59, 34, 0.06);
+  box-shadow: 3px 3px 0 var(--chili-red);
+}
+
+.micBtn {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.waveCanvas {
+  width: 100%;
+  max-width: 420px;
+  height: 50px;
+}
+
+.caption {
+  font-size: 13px;
+  color: var(--text-muted);
+}

@@ -1,0 +1,90 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fieldRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.fieldCol {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stratSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stratHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.evalLink {
+  font-size: 11px;
+  color: var(--chili-red);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.stratGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.stratPill {
+  position: relative;
+  background: var(--bg-card);
+  border: 2px solid var(--ink-black);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+  box-shadow: 2px 2px 0 var(--warm-gray);
+  transition: box-shadow 0.15s ease;
+}
+
+.stratPill:hover {
+  box-shadow: 3px 3px 0 var(--ink-black);
+}
+
+.stratPill.active {
+  border-color: var(--chili-red);
+  box-shadow: 3px 3px 0 var(--chili-red);
+}
+
+.activeBackdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(226, 59, 34, 0.06);
+  border-radius: 6px;
+  z-index: 0;
+}
+
+.stratTitle {
+  position: relative;
+  z-index: 1;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stratDesc {
+  position: relative;
+  z-index: 1;
+  font-size: 11px;
+  color: var(--text-muted);
+}

@@ -1,0 +1,75 @@
+.ribbon {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 2.5px solid var(--ink-black);
+  border-radius: var(--radius-md);
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.card:hover {
+  transform: translate(-2px, -2px);
+}
+
+.shadowGreen {
+  box-shadow: 4px 4px 0 var(--forest-green);
+}
+
+.shadowGreen:hover {
+  box-shadow: 6px 6px 0 var(--forest-green);
+}
+
+.shadowRed {
+  box-shadow: 4px 4px 0 var(--chili-red);
+}
+
+.shadowRed:hover {
+  box-shadow: 6px 6px 0 var(--chili-red);
+}
+
+.shadowMustard {
+  box-shadow: 4px 4px 0 var(--mustard);
+}
+
+.shadowMustard:hover {
+  box-shadow: 6px 6px 0 var(--mustard);
+}
+
+.cardLabel {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+}
+
+.cardValue {
+  font-family: var(--font-heading);
+  font-size: 32px;
+  line-height: 1;
+}
+
+.cardSub {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 900px) {
+  .ribbon {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .ribbon {
+    grid-template-columns: 1fr;
+  }
+}
