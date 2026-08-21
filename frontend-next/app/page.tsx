@@ -20,6 +20,7 @@ interface BenchmarkData {
 }
 
 export default function Home() {
+  const [mounted, setMounted] = useState(false);
   const [introComplete, setIntroComplete] = useState(false);
   const [benchData, setBenchData] = useState<BenchmarkData | null>(null);
   const [activeStrategy, setActiveStrategy] = useState("sentence_based");
@@ -32,8 +33,8 @@ export default function Home() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
-  // Fetch benchmarks on mount
   useEffect(() => {
+    setMounted(true);
     fetch("/api/benchmark")
       .then((r) => r.json())
       .then((d) => setBenchData(d))
@@ -109,6 +110,8 @@ export default function Home() {
       }
     }
   }, [isRecording, runQuery, queryText]);
+
+  if (!mounted) return null;
 
   return (
     <>
