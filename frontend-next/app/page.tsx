@@ -125,43 +125,89 @@ export default function Home() {
         <BenchmarkRibbon data={benchData} />
 
         <div className={styles.gridContainer}>
-          {/* Left Column — Voice Input Studio */}
+          {/* Left Column — Input & RAG Setup */}
           <div className={styles.leftCol}>
-            <div className={styles.cardHeader}>
-              <h2 className={styles.sectionTitle}>🎙️ Voice Input Studio</h2>
-              <span className="retro-badge badge-green">Sarvam AI Ready</span>
+            {/* Step 1: Voice STT */}
+            <div className={styles.sectionCard}>
+              <div className={styles.cardHeader}>
+                <div>
+                  <span className={styles.stepBadge}>STEP 1</span>
+                  <h2 className={styles.sectionTitle}>🎙️ Voice Input &amp; STT Engine</h2>
+                </div>
+                <span className="retro-badge badge-green">Sarvam saaras:v3</span>
+              </div>
+              <p className={styles.stepDesc}>
+                Captures live audio via microphone and streams bytes to Sarvam AI for automatic multilingual, Hinglish &amp; code-mixed transcription.
+              </p>
+              <HeroVoice
+                isRecording={isRecording}
+                onToggleRecording={toggleRecording}
+              />
             </div>
 
-            <HeroVoice
-              isRecording={isRecording}
-              onToggleRecording={toggleRecording}
-            />
-
-            <ConfigPanel
-              activeStrategy={activeStrategy}
-              onStrategyChange={setActiveStrategy}
-              sttProvider={sttProvider}
-              onSttChange={setSttProvider}
-              lang={lang}
-              onLangChange={setLang}
-            />
-
-            <QueryInput
-              value={queryText}
-              onChange={setQueryText}
-              onSubmit={() => runQuery()}
-              loading={loading}
-            />
+            {/* Step 2: Strategy Config & Query Input */}
+            <div className={styles.sectionCard}>
+              <div className={styles.cardHeader}>
+                <div>
+                  <span className={styles.stepBadge}>STEP 2</span>
+                  <h2 className={styles.sectionTitle}>⚙️ Chunking Strategy &amp; Vector Query</h2>
+                </div>
+                <span className="retro-badge badge-mustard">FAISS 337K Index</span>
+              </div>
+              <p className={styles.stepDesc}>
+                Selects engineered chunking strategy (Sentence, Fixed, Semantic, Metadata) and launches dense vector retrieval across 337,018 MSMARCO passages.
+              </p>
+              <ConfigPanel
+                activeStrategy={activeStrategy}
+                onStrategyChange={setActiveStrategy}
+                sttProvider={sttProvider}
+                onSttChange={setSttProvider}
+                lang={lang}
+                onLangChange={setLang}
+              />
+              <QueryInput
+                value={queryText}
+                onChange={setQueryText}
+                onSubmit={() => runQuery()}
+                loading={loading}
+              />
+            </div>
           </div>
 
-          {/* Right Column — Results */}
+          {/* Right Column — Results & Vector Inspector */}
           <div className={styles.rightCol}>
-            <ResultsPanel result={result} loading={loading} />
+            {/* Step 3: Latency & Answer */}
+            <div className={styles.sectionCard}>
+              <div className={styles.cardHeader}>
+                <div>
+                  <span className={styles.stepBadge}>STEP 3</span>
+                  <h2 className={styles.sectionTitle}>⚡ Real-Time Latency &amp; Grounded LLM Response</h2>
+                </div>
+                <span className="retro-badge badge-red">Ollama Nemotron Ultra</span>
+              </div>
+              <p className={styles.stepDesc}>
+                Measures sub-millisecond pipeline latency across STT ➔ FAISS ➔ Guardrails ➔ LLM and displays the language-matched grounded answer.
+              </p>
+              <ResultsPanel result={result} loading={loading} />
+            </div>
 
-            <VectorInspector
-              chunks={result?.retrieved_chunks ?? []}
-              strategy={activeStrategy}
-            />
+            {/* Step 4: Vector Inspector */}
+            <div className={styles.sectionCard}>
+              <div className={styles.cardHeader}>
+                <div>
+                  <span className={styles.stepBadge}>STEP 4</span>
+                  <h2 className={styles.sectionTitle}>🔍 FAISS Vector DB Passage Inspector</h2>
+                </div>
+                <span className="retro-badge badge-green">Top-K Context</span>
+              </div>
+              <p className={styles.stepDesc}>
+                Inspects exact retrieved MSMARCO knowledge passages, document metadata, and FAISS cosine similarity scores.
+              </p>
+              <VectorInspector
+                chunks={result?.retrieved_chunks ?? []}
+                strategy={activeStrategy}
+              />
+            </div>
           </div>
         </div>
 
