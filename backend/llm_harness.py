@@ -19,9 +19,9 @@ class LLMHarness:
     def __init__(self):
         self.sarvam_key = os.getenv("SARVAM_API_KEY", "sk_q088ks1i_rd3BjNC7Mteco4n2jILrP7NO").strip()
         self.nvidia_key = os.getenv("NVIDIA_API_KEY", "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").strip()
-        self.ollama_key = os.getenv("OLLAMA_API_KEY", "80d559a20156405088edd63231ad83e0").strip()
+        self.ollama_key = os.getenv("OLLAMA_API_KEY", "c368ff1770154152b6dec820ccee77e5.aJvma-9Qmkqnw7Pd4-CY2WyV").strip()
         self.groq_key = os.getenv("GROQ_API_KEY", "").strip()
-        self.preferred_provider = os.getenv("LLM_PROVIDER", "auto").lower()
+        self.preferred_provider = os.getenv("LLM_PROVIDER", "ollama").lower()
 
     async def generate_answer(
         self,
@@ -39,20 +39,20 @@ class LLMHarness:
         ])
 
         system_prompt = (
-            "You are an AI RAG Assistant grounded strictly on provided MSMARCO-XI knowledge base passages.\n"
-            "Rules:\n"
-            "1. Answer concisely, accurately, and naturally based ONLY on the context provided.\n"
-            "2. Do NOT invent facts or hallucinate external information.\n"
-            "3. MATCH THE USER'S LANGUAGE EXACTLY: If the user asks in Hinglish (e.g. 'AI ka kya kaam hai?'), answer in natural Hinglish! If the user asks in Hindi, answer in Hindi! If in English, answer in English! If in Tamil/Telugu/etc., answer in that language!\n"
-            "4. Provide direct, conversational answers suitable for text and speech delivery."
+            "You are Transcriber AI, an expert Voice-Enabled RAG model powered by Ollama Nemotron 3 Ultra.\n"
+            "Instructions:\n"
+            "1. Answer the user's question directly, accurately, concisely, and naturally.\n"
+            "2. ALWAYS match the user's language EXACTLY (Hindi in Devanagari script, Hinglish, or English).\n"
+            "3. If retrieved context is provided, use relevant facts from it to ground your answer.\n"
+            "4. If the query is conversational (e.g. 'who are you', 'तुम हो कौन', 'कहाँ से हो'), answer directly as Transcriber AI in their language!"
         )
 
-        user_prompt = f"User Question: {query}\n\nRetrieved Context:\n{context_str}\n\nAnswer:"
+        user_prompt = f"User Question: {query}\n\nRetrieved Context Passages:\n{context_str}\n\nAnswer:"
 
-        # 1. Attempt Ollama Cloud API (nemotron-3-ultra) with fast 0.15s timeout for <200ms compliance
-        if self.ollama_key and self.preferred_provider in ["ollama", "nemotron"]:
+        # 1. Attempt Ollama Cloud API (nemotron-3-ultra) with user's key
+        if self.ollama_key:
             try:
-                async with httpx.AsyncClient(timeout=0.18) as client:
+                async with httpx.AsyncClient(timeout=12.0) as client:
                     resp = await client.post(
                         "https://ollama.com/v1/chat/completions",
                         headers={
@@ -66,7 +66,7 @@ class LLMHarness:
                                 {"role": "user", "content": user_prompt}
                             ],
                             "temperature": 0.2,
-                            "max_tokens": 120
+                            "max_tokens": 150
                         }
                     )
                     if resp.status_code == 200:
@@ -81,8 +81,8 @@ class LLMHarness:
                                 "status": "success",
                                 "attempts": 1
                             }, (t_end - t_start) * 1000.0
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"Ollama Cloud API warning ({type(e).__name__}): {e}")
 
         # 2. Fast Intelligent Natural Language Synthesizer (<15ms for sub-200ms target compliance)
         t_end = time.perf_counter()

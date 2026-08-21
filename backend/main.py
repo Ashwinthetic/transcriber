@@ -103,7 +103,8 @@ class QueryResponse(BaseModel):
     grounded: bool
     grounding_score: float
     refusal_reason: Optional[str] = None
-    retrieved_chunks: List[Dict[str, Any]]
+    llm_provider: Optional[str] = "ollama_cloud"
+    llm_model: Optional[str] = "nemotron-3-ultra"
     stt_latency_ms: float
     retrieval_latency_ms: float
     guardrail_latency_ms: float
@@ -215,6 +216,8 @@ async def process_voice_rag_query(req: QueryRequest):
         grounding_score=ground_score,
         refusal_reason=None,
         retrieved_chunks=chunks,
+        llm_provider=llm_res.get("provider", "ollama_cloud"),
+        llm_model=llm_res.get("model", "nemotron-3-ultra"),
         stt_latency_ms=stt_lat,
         retrieval_latency_ms=ret_lat,
         guardrail_latency_ms=guard_lat,
