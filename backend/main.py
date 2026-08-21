@@ -185,7 +185,7 @@ async def process_voice_rag_query(req: QueryRequest):
             query=query_text,
             stt_provider=req.stt_provider,
             strategy_used=req.strategy,
-            answer="I couldn't find sufficient information in the provided knowledge base to answer that accurately.",
+            answer=ground_msg,
             grounded=False,
             grounding_score=ground_score,
             refusal_reason=ground_msg,

@@ -180,8 +180,8 @@ export default function ResultsPanel({
               <StampEffect
                 text={
                   result.grounded
-                    ? `Grounded ${(result.grounding_score * 100).toFixed(0)}%`
-                    : "Refusal"
+                    ? `✓ Grounded ${(result.grounding_score * 100).toFixed(0)}%`
+                    : "✕ Not Grounded"
                 }
                 color={
                   result.grounded ? "var(--forest-green)" : "var(--chili-red)"
