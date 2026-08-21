@@ -94,10 +94,10 @@ export default function ResultsPanel({
             >
               {result ? result.total_latency_ms.toFixed(1) : "0.0"}
             </span>
-            <span className={styles.latUnit}> ms Total Latency</span>
+            <span className={styles.latUnit}> ms Total E2E Latency</span>
           </div>
           <div className={styles.breakdownChips}>
-            <span>STT: {result?.stt_latency_ms.toFixed(1) ?? "0"}ms</span>
+            <span>STT Stream: {result?.stt_latency_ms.toFixed(1) ?? "0"}ms</span>
             <span>FAISS: {result?.retrieval_latency_ms.toFixed(1) ?? "0"}ms</span>
             <span>Guard: {result?.guardrail_latency_ms.toFixed(1) ?? "0"}ms</span>
             <span>LLM: {result?.llm_latency_ms.toFixed(1) ?? "0"}ms</span>
@@ -108,18 +108,22 @@ export default function ResultsPanel({
             <div
               className={styles.segStt}
               style={{ width: `${(result.stt_latency_ms / sum) * 100}%` }}
+              title={`STT: ${result.stt_latency_ms.toFixed(1)}ms`}
             />
             <div
               className={styles.segRet}
               style={{ width: `${(result.retrieval_latency_ms / sum) * 100}%` }}
+              title={`FAISS Vector Search: ${result.retrieval_latency_ms.toFixed(1)}ms`}
             />
             <div
               className={styles.segGuard}
               style={{ width: `${(result.guardrail_latency_ms / sum) * 100}%` }}
+              title={`Guardrails Check: ${result.guardrail_latency_ms.toFixed(1)}ms`}
             />
             <div
               className={styles.segLlm}
               style={{ width: `${(result.llm_latency_ms / sum) * 100}%` }}
+              title={`LLM Generation: ${result.llm_latency_ms.toFixed(1)}ms`}
             />
           </div>
         )}
