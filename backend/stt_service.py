@@ -26,7 +26,7 @@ class SpeechToTextService:
         self,
         audio_bytes: bytes,
         provider: str = "sarvam",
-        language_code: str = "en-IN",
+        language_code: str = "unknown",
         sample_prompt: Optional[str] = None
     ) -> Tuple[Dict[str, Any], float]:
         """Transcribes audio payload returning dict with transcript and latency_ms."""
@@ -47,12 +47,14 @@ class SpeechToTextService:
         # Live Sarvam AI STT API Call (saaras:v3)
         if provider == "sarvam" and self.sarvam_key:
             try:
+                # Use 'unknown' for Sarvam auto language detection if en-IN or default
+                sarvam_lang = "unknown" if language_code in ["en-IN", "unknown", "auto"] else language_code
                 async with httpx.AsyncClient(timeout=10.0) as client:
                     files = {"file": ("input_audio.wav", audio_bytes, "audio/wav")}
                     headers = {"api-subscription-key": self.sarvam_key}
                     data = {
                         "model": self.sarvam_model,
-                        "language_code": language_code,
+                        "language_code": sarvam_lang,
                         "with_timestamps": "false"
                     }
                     response = await client.post(self.sarvam_url, headers=headers, files=files, data=data)

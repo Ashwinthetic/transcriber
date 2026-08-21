@@ -70,8 +70,9 @@ export default function ConfigPanel({
             value={lang}
             onChange={(e) => onLangChange(e.target.value)}
           >
-            <option value="en-IN">English (en-IN)</option>
+            <option value="unknown">🌐 Auto-Detect (Multilingual &amp; Hinglish)</option>
             <option value="hi-IN">Hindi (hi-IN)</option>
+            <option value="en-IN">English (en-IN)</option>
             <option value="ta-IN">Tamil (ta-IN)</option>
             <option value="te-IN">Telugu (te-IN)</option>
           </select>

@@ -24,7 +24,7 @@ export default function Home() {
   const [benchData, setBenchData] = useState<BenchmarkData | null>(null);
   const [activeStrategy, setActiveStrategy] = useState("sentence_based");
   const [sttProvider, setSttProvider] = useState("sarvam");
-  const [lang, setLang] = useState("en-IN");
+  const [lang, setLang] = useState("unknown");
   const [queryText, setQueryText] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<QueryResult | null>(null);

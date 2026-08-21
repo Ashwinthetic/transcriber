@@ -43,7 +43,8 @@ class LLMHarness:
             "Rules:\n"
             "1. Answer concisely, accurately, and naturally based ONLY on the context provided.\n"
             "2. Do NOT invent facts or hallucinate external information.\n"
-            "3. Provide direct answers suitable for text and speech delivery."
+            "3. MATCH THE USER'S LANGUAGE EXACTLY: If the user asks in Hinglish (e.g. 'AI ka kya kaam hai?'), answer in natural Hinglish! If the user asks in Hindi, answer in Hindi! If in English, answer in English! If in Tamil/Telugu/etc., answer in that language!\n"
+            "4. Provide direct, conversational answers suitable for text and speech delivery."
         )
 
         user_prompt = f"User Question: {query}\n\nRetrieved Context:\n{context_str}\n\nAnswer:"
