@@ -13,7 +13,8 @@ interface BenchmarkData {
   total_queries_tested: number;
 }
 
-const cardVariants = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const cardVariants: any = {
   hidden: { y: 30, opacity: 0, scale: 0.95 },
   visible: (i: number) => ({
     y: 0,
