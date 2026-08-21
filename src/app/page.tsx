@@ -18,7 +18,7 @@ export default function MainPage() {
   const { error } = useSTTStore();
 
   return (
-    <div className="min-h-screen text-[#111111] flex flex-row relative overflow-hidden">
+    <div className="min-h-screen text-white flex flex-row relative overflow-hidden">
       {/* Global HHGOA Theme Background */}
       <div className="fixed inset-0 z-[-2]">
         <Image
@@ -72,7 +72,7 @@ export default function MainPage() {
           <TryExamples />
         </main>
 
-        <footer className="py-6 text-center text-xs text-gray-800 font-semibold glass-topbar mt-auto relative z-10">
+        <footer className="py-6 text-center text-xs text-white/60 font-semibold glass-topbar mt-auto relative z-10">
           HHGOA Content Agent Engine · Sub-200ms Voice Pipeline · #RAGInGoa
         </footer>
       </div>

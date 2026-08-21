@@ -21,14 +21,14 @@ export function ConfigRow() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
         {/* 1. STT Model Selector */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
-            <Cpu className="w-3.5 h-3.5 text-[#111111]" />
+          <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+            <Cpu className="w-3.5 h-3.5 text-white" />
             STT Model
           </label>
           <select
             value={selectedModel}
             onChange={(e) => setSelectedModel(e.target.value)}
-            className="w-full px-3.5 py-2.5 bg-[#FAFAFA] border border-[#E5E5E5] rounded-xl text-xs font-semibold text-[#111111] focus:outline-none focus:ring-2 focus:ring-black cursor-pointer transition-all"
+            className="w-full px-3.5 py-2.5 bg-black/40 border border-white/20 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-white/50 cursor-pointer transition-all"
           >
             <option value="hhgoa-stt-v1">hhgoa-stt-v1 (High Accuracy)</option>
             <option value="hhgoa-stt-fast">hhgoa-stt-fast (Sub-200ms)</option>
@@ -38,14 +38,14 @@ export function ConfigRow() {
 
         {/* 2. Native Language Selector */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+          <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
             <Globe className="w-3.5 h-3.5 text-[#FF6B00]" />
             Native Language
           </label>
           <select
             value={selectedLanguage}
             onChange={(e) => setSelectedLanguage(e.target.value)}
-            className="w-full px-3.5 py-2.5 bg-[#FAFAFA] border border-[#E5E5E5] rounded-xl text-xs font-semibold text-[#111111] focus:outline-none focus:ring-2 focus:ring-black cursor-pointer transition-all"
+            className="w-full px-3.5 py-2.5 bg-black/40 border border-white/20 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-white/50 cursor-pointer transition-all"
           >
             <option value="Hindi">Hindi (हिंदी)</option>
             <option value="English">English (US/IN)</option>
@@ -56,14 +56,14 @@ export function ConfigRow() {
 
         {/* 3. LLM Post-Processing Selector */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+          <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-purple-400" />
             LLM Post-Processing
           </label>
           <select
             value={selectedLLM}
             onChange={(e) => setSelectedLLM(e.target.value)}
-            className="w-full px-3.5 py-2.5 bg-[#FAFAFA] border border-[#E5E5E5] rounded-xl text-xs font-semibold text-[#111111] focus:outline-none focus:ring-2 focus:ring-black cursor-pointer transition-all"
+            className="w-full px-3.5 py-2.5 bg-black/40 border border-white/20 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-white/50 cursor-pointer transition-all"
           >
             <option value="None">None (Raw Transcript)</option>
             <option value="hhgoa-llm-summarize">hhgoa-llm-summarize (Key Points)</option>
@@ -73,7 +73,7 @@ export function ConfigRow() {
       </div>
 
       {/* Action Button */}
-      <div className="flex items-center justify-between pt-2 border-t border-[#E5E5E5]">
+      <div className="flex items-center justify-between pt-2 border-t border-white/20">
         <div className="text-xs text-gray-400 font-medium">
           {audioFile ? (
             <span className="text-emerald-600 font-semibold flex items-center gap-1">
@@ -88,9 +88,9 @@ export function ConfigRow() {
         <button
           onClick={runTranscription}
           disabled={!audioFile || isTranscribing}
-          className="px-8 py-3 bg-[#111111] text-white font-bold rounded-2xl text-xs hover:bg-black transition-all shadow-subtle disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+          className="px-8 py-3 bg-white text-black font-bold rounded-2xl text-xs hover:bg-gray-200 transition-all shadow-subtle disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
         >
-          <Zap className="w-4 h-4 fill-white" />
+          <Zap className="w-4 h-4 fill-black text-black" />
           {isTranscribing ? "Processing..." : "Transcribe"}
         </button>
       </div>

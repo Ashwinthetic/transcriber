@@ -23,17 +23,17 @@ export function FeedbackModal() {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-      <div className="bg-white border border-[#E5E5E5] rounded-3xl w-full max-w-md p-6 shadow-float relative animate-in fade-in zoom-in-95">
-        <div className="flex items-center justify-between pb-4 border-b border-[#E5E5E5]">
+      <div className="bg-[#111111] border border-white/20 rounded-3xl w-full max-w-md p-6 shadow-float relative animate-in fade-in zoom-in-95">
+        <div className="flex items-center justify-between pb-4 border-b border-white/20">
           <div className="flex items-center gap-2">
             <MessageSquare className="w-5 h-5 text-[#FF6B00]" />
-            <h3 className="font-bold text-base text-[#111111] font-heading">
+            <h3 className="font-bold text-base text-white font-heading">
               Feedback & Insights
             </h3>
           </div>
           <button
             onClick={toggleFeedback}
-            className="p-1 rounded-full text-gray-400 hover:text-black hover:bg-gray-100 transition-colors"
+            className="p-1 rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -41,17 +41,17 @@ export function FeedbackModal() {
 
         {sent ? (
           <div className="py-12 flex flex-col items-center justify-center text-center">
-            <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-3">
+            <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-3">
               <Check className="w-6 h-6" />
             </div>
-            <h4 className="font-bold text-[#111111] text-base">Thank You!</h4>
-            <p className="text-xs text-gray-500 mt-1">
+            <h4 className="font-bold text-white text-base">Thank You!</h4>
+            <p className="text-xs text-gray-400 mt-1">
               Your feedback helps us refine the HHGOA Speech-to-Text Content Agent tool.
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="py-4 space-y-4">
-            <p className="text-xs text-gray-600">
+            <p className="text-xs text-gray-300">
               How was your transcription experience? Share feature requests, language accuracy notes, or general feedback with the HHGOA team.
             </p>
 
@@ -61,20 +61,20 @@ export function FeedbackModal() {
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
               placeholder="Type your feedback here..."
-              className="w-full p-3 bg-[#FAFAFA] border border-[#E5E5E5] rounded-2xl text-xs text-[#111111] focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all"
+              className="w-full p-3 bg-white/10 border border-white/20 rounded-2xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all placeholder:text-gray-400"
             />
 
             <div className="flex justify-end gap-2 pt-2">
               <button
                 type="button"
                 onClick={toggleFeedback}
-                className="px-4 py-2 bg-[#FAFAFA] border border-[#E5E5E5] text-xs font-semibold rounded-xl text-gray-700 hover:bg-gray-100"
+                className="px-4 py-2 bg-white/10 border border-white/20 text-xs font-semibold rounded-xl text-white hover:bg-white/20"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 bg-[#111111] text-white text-xs font-semibold rounded-xl hover:bg-black transition-colors flex items-center gap-1.5 shadow-subtle"
+                className="px-5 py-2 bg-white text-black text-xs font-semibold rounded-xl hover:bg-gray-200 transition-colors flex items-center gap-1.5 shadow-subtle"
               >
                 <Send className="w-3.5 h-3.5" />
                 Submit

@@ -90,20 +90,20 @@ export function AudioRecordModal() {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white border border-[#E5E5E5] rounded-3xl w-full max-w-md p-6 shadow-float relative animate-in fade-in zoom-in-95">
+      <div className="bg-[#111111] border border-white/20 rounded-3xl w-full max-w-md p-6 shadow-float relative animate-in fade-in zoom-in-95">
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-[#E5E5E5]">
+        <div className="flex items-center justify-between pb-4 border-b border-white/20">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-[#FAFAFA] border border-[#E5E5E5] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center">
               <Mic className="w-4 h-4 text-[#FF6B00]" />
             </div>
-            <h3 className="font-bold font-heading text-[#111111] text-base">
+            <h3 className="font-bold font-heading text-white text-base">
               Record Audio
             </h3>
           </div>
           <button
             onClick={closeRecordingModal}
-            className="p-1 rounded-full text-gray-400 hover:text-black hover:bg-gray-100 transition-colors"
+            className="p-1 rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -125,8 +125,8 @@ export function AudioRecordModal() {
                     isRecording
                       ? "bg-[#FF6B00] animate-wave-bar"
                       : recordedBlob
-                      ? "bg-black"
-                      : "bg-gray-200"
+                      ? "bg-white"
+                      : "bg-gray-700"
                   }`}
                 />
               )
@@ -134,7 +134,7 @@ export function AudioRecordModal() {
           </div>
 
           {/* Timer Display */}
-          <div className="text-3xl font-bold font-heading text-[#111111] mb-2 tracking-tight">
+          <div className="text-3xl font-bold font-heading text-white mb-2 tracking-tight">
             {formatTime(recordingTime)}
           </div>
           <p className="text-xs text-gray-400">
@@ -147,11 +147,11 @@ export function AudioRecordModal() {
         </div>
 
         {/* Actions Footer */}
-        <div className="flex items-center gap-3 pt-4 border-t border-[#E5E5E5]">
+        <div className="flex items-center gap-3 pt-4 border-t border-white/20">
           {!isRecording && !recordedBlob && (
             <button
               onClick={startRecording}
-              className="w-full py-3 bg-[#111111] text-white rounded-xl text-xs font-semibold hover:bg-black transition-colors flex items-center justify-center gap-2 shadow-subtle"
+              className="w-full py-3 bg-white text-black rounded-xl text-xs font-semibold hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 shadow-subtle"
             >
               <Mic className="w-4 h-4 text-[#FF6B00]" />
               Start Recording
@@ -172,14 +172,14 @@ export function AudioRecordModal() {
             <>
               <button
                 onClick={handleReset}
-                className="flex-1 py-2.5 bg-[#FAFAFA] border border-[#E5E5E5] text-[#111111] rounded-xl text-xs font-semibold hover:bg-gray-100 transition-colors flex items-center justify-center gap-1.5"
+                className="flex-1 py-2.5 bg-white/10 border border-white/20 text-white rounded-xl text-xs font-semibold hover:bg-white/20 transition-colors flex items-center justify-center gap-1.5"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 Retake
               </button>
               <button
                 onClick={handleSaveRecordedClip}
-                className="flex-1 py-2.5 bg-[#111111] text-white rounded-xl text-xs font-semibold hover:bg-black transition-colors flex items-center justify-center gap-1.5 shadow-subtle"
+                className="flex-1 py-2.5 bg-white text-black rounded-xl text-xs font-semibold hover:bg-gray-200 transition-colors flex items-center justify-center gap-1.5 shadow-subtle"
               >
                 <Check className="w-3.5 h-3.5" />
                 Load Clip

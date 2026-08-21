@@ -35,9 +35,9 @@ export function TryExamples() {
 
   return (
     <div className="my-8">
-      <h3 className="text-sm font-bold text-[#111111] uppercase tracking-wider mb-4 flex items-center gap-2 drop-shadow-sm">
+      <h3 className="text-sm font-black text-yellow-400 uppercase tracking-wider mb-4 flex items-center gap-2 drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]">
         <span>Try Some Examples</span>
-        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-white/60 backdrop-blur-sm border border-white/50 text-gray-800 shadow-sm">
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 backdrop-blur-md border border-yellow-400/50 text-yellow-400 drop-shadow-[0_0_4px_rgba(250,204,21,0.6)]">
           Click to load sample
         </span>
       </h3>
@@ -49,27 +49,27 @@ export function TryExamples() {
             <div
               key={ex.exampleId}
               onClick={() => loadExample(ex)}
-              className="glass-card rounded-3xl p-5 hover:border-black hover:bg-white/90 transition-all cursor-pointer group shadow-subtle flex flex-col justify-between"
+              className="glass-card rounded-3xl p-5 hover:border-white/40 hover:bg-black/40 transition-all cursor-pointer group shadow-subtle flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <div className="w-9 h-9 rounded-2xl bg-white/50 border border-white/60 flex items-center justify-center group-hover:bg-[#111111] transition-colors shadow-sm">
-                    <Icon className="w-4 h-4 text-[#111111] group-hover:text-white transition-colors" />
+                  <div className="w-9 h-9 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center group-hover:bg-white/20 transition-colors shadow-sm">
+                    <Icon className="w-4 h-4 text-white group-hover:text-white transition-colors" />
                   </div>
-                  <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-white/50 border border-white/60 text-[#111111] shadow-sm">
+                  <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-white shadow-sm">
                     {ex.language}
                   </span>
                 </div>
 
-                <h4 className="font-bold text-sm text-[#111111] mb-1 font-heading group-hover:text-black">
+                <h4 className="font-bold text-sm text-white mb-1 font-heading group-hover:text-white">
                   {ex.title}
                 </h4>
-                <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
+                <p className="text-xs text-gray-300 line-clamp-2 leading-relaxed">
                   {ex.description}
                 </p>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-white/60 flex items-center justify-between text-xs font-semibold text-gray-800 group-hover:text-black">
+              <div className="mt-4 pt-3 border-t border-white/20 flex items-center justify-between text-xs font-semibold text-gray-300 group-hover:text-white">
                 <span>Load Sample</span>
                 <Play className="w-3.5 h-3.5 fill-current" />
               </div>
