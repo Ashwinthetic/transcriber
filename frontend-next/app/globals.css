@@ -23,7 +23,7 @@
   --ink-black: var(--goa-outline-black);
   --chili-red: var(--goa-neon-pink);
   --mustard: var(--goa-sun-yellow);
-  --forest-green: #00E676;
+  --forest-green: #04381D;
 
   /* Semantic */
   --bg-primary: var(--goa-emerald);
@@ -34,7 +34,7 @@
   --text-muted: var(--goa-sage-text);
   --accent-primary: var(--goa-sun-yellow);
   --accent-secondary: var(--goa-neon-pink);
-  --accent-tertiary: #00E676;
+  --accent-tertiary: var(--goa-sun-yellow);
   --border-color: #084D2B;
   --border-strong: var(--goa-outline-black);
 
@@ -43,7 +43,7 @@
   --shadow-md: 5px 5px 0 var(--ink-black);
   --shadow-red: 4px 4px 0 var(--goa-neon-pink);
   --shadow-mustard: 4px 4px 0 var(--goa-sun-yellow);
-  --shadow-green: 4px 4px 0 #00E676;
+  --shadow-green: 4px 4px 0 var(--ink-black);
 
   /* Typography */
   --font-heading: 'Rozha One', serif;
@@ -184,8 +184,9 @@ body {
 }
 
 .badge-green {
-  background: var(--forest-green);
-  color: #fff;
+  background: #04381D;
+  color: var(--goa-sun-yellow);
+  border: 2px solid var(--goa-sun-yellow);
 }
 
 .badge-red {
