@@ -8,11 +8,13 @@ import styles from "./HeroVoice.module.css";
 interface HeroVoiceProps {
   isRecording: boolean;
   onToggleRecording: () => void;
+  liveTranscript?: string;
 }
 
 export default function HeroVoice({
   isRecording,
   onToggleRecording,
+  liveTranscript = "",
 }: HeroVoiceProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number | null>(null);
@@ -111,9 +113,17 @@ export default function HeroVoice({
 
         <p className={styles.caption}>
           {isRecording
-            ? "Listening… Click mic to stop recording"
-            : "Click microphone to record voice prompt"}
+            ? "🔴 Listening… Speak now! Words appear live below"
+            : "Click microphone button to record voice prompt"}
         </p>
+
+        {/* Real-time live transcript box */}
+        {isRecording && liveTranscript && (
+          <div className={styles.liveSpeechBox}>
+            <span className={styles.liveBadge}>LIVE TRANSCRIPTION</span>
+            <p className={styles.liveText}>&ldquo;{liveTranscript}&rdquo;</p>
+          </div>
+        )}
       </div>
     </motion.div>
   );

@@ -8,22 +8,17 @@
 }
 
 .gridContainer {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 24px;
-  align-items: start;
+  width: 100%;
 }
 
-.leftCol {
+.leftCol, .rightCol {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-}
-
-.rightCol {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  gap: 24px;
+  width: 100%;
 }
 
 .sectionCard {

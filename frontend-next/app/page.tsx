@@ -30,9 +30,13 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<QueryResult | null>(null);
   const [isRecording, setIsRecording] = useState(false);
+  const [liveTranscript, setLiveTranscript] = useState("");
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const speechRecRef = useRef<any>(null);
 
+  // Fetch benchmarks on mount
   useEffect(() => {
     setMounted(true);
     fetch("/api/benchmark")
@@ -44,7 +48,7 @@ export default function Home() {
   // Run RAG query
   const runQuery = useCallback(
     async (text?: string, audioB64?: string) => {
-      const q = text || queryText;
+      const q = text || queryText || liveTranscript;
       if (!q && !audioB64) return;
       setLoading(true);
       try {
@@ -69,18 +73,45 @@ export default function Home() {
         setLoading(false);
       }
     },
-    [queryText, activeStrategy, sttProvider]
+    [queryText, liveTranscript, activeStrategy, sttProvider]
   );
 
-  // Mic recording
+  // Mic recording with real-time live speech recognition
   const toggleRecording = useCallback(async () => {
     if (isRecording) {
-      // Stop
+      // Stop media recorder & speech recognition
       mediaRecorderRef.current?.stop();
+      if (speechRecRef.current) {
+        try { speechRecRef.current.stop(); } catch {}
+      }
       setIsRecording(false);
     } else {
-      // Start
+      // Start recording & live speech listener
+      setLiveTranscript("");
       try {
+        // Start Web Speech API live listener if available
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        if (SpeechRec) {
+          const rec = new SpeechRec();
+          rec.continuous = true;
+          rec.interimResults = true;
+          rec.lang = lang === "unknown" ? "hi-IN" : lang;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          rec.onresult = (evt: any) => {
+            let current = "";
+            for (let i = evt.resultIndex; i < evt.results.length; i++) {
+              current += evt.results[i][0].transcript;
+            }
+            if (current) {
+              setLiveTranscript(current);
+              setQueryText(current);
+            }
+          };
+          rec.start();
+          speechRecRef.current = rec;
+        }
+
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: true,
         });
@@ -109,7 +140,7 @@ export default function Home() {
         );
       }
     }
-  }, [isRecording, runQuery, queryText]);
+  }, [isRecording, runQuery, queryText, lang]);
 
   if (!mounted) return null;
 
@@ -145,6 +176,7 @@ export default function Home() {
               <HeroVoice
                 isRecording={isRecording}
                 onToggleRecording={toggleRecording}
+                liveTranscript={liveTranscript}
               />
             </div>
 

@@ -58,3 +58,30 @@
   font-size: 13px;
   color: var(--text-muted);
 }
+
+.liveSpeechBox {
+  width: 100%;
+  max-width: 520px;
+  background: #ffffff;
+  border: 2px solid var(--chili-red);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  box-shadow: 3px 3px 0 var(--chili-red);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.liveBadge {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--chili-red);
+  letter-spacing: 1px;
+}
+
+.liveText {
+  font-size: 15px;
+  font-style: italic;
+  font-weight: 600;
+  color: var(--ink-black);
+}
