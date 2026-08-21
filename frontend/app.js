@@ -1,91 +1,126 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // DOM Elements
-  const micButton = document.getElementById('micButton');
-  const micStatusText = document.getElementById('micStatusText');
-  const queryInput = document.getElementById('queryInput');
-  const btnSubmitQuery = document.getElementById('btnSubmitQuery');
-  const strategyBtns = document.querySelectorAll('.strategy-btn');
-  const sttRadioPills = document.querySelectorAll('.radio-pill input[name="stt_provider"]');
-  const sampleChips = document.querySelectorAll('.chip');
+  // DOM References
+  const micBtn = document.getElementById('micBtn');
+  const micRing = document.getElementById('micRing');
+  const micCaption = document.getElementById('micCaption');
+  const waveformCanvas = document.getElementById('waveformCanvas');
 
-  // Latency & Results DOM
-  const totalLatencyNum = document.getElementById('totalLatencyNum');
-  const targetBadgeStatus = document.getElementById('targetBadgeStatus');
-  const sttLatVal = document.getElementById('sttLatVal');
-  const retLatVal = document.getElementById('retLatVal');
-  const guardLatVal = document.getElementById('guardLatVal');
-  const llmLatVal = document.getElementById('llmLatVal');
-  
-  const segStt = document.getElementById('segStt');
-  const segRet = document.getElementById('segRet');
-  const segGuard = document.getElementById('segGuard');
-  const segLlm = document.getElementById('segLlm');
+  const sttProviderSelect = document.getElementById('sttProviderSelect');
+  const langSelect = document.getElementById('langSelect');
+  const stratPills = document.querySelectorAll('.strat-pill');
+  const textQueryInput = document.getElementById('textQueryInput');
+  const btnExecuteRAG = document.getElementById('btnExecuteRAG');
+  const qtChips = document.querySelectorAll('.qt-chip');
 
-  const answerOutputText = document.getElementById('answerOutputText');
-  const guardPill = document.getElementById('guardPill');
-  const activeStrategyTag = document.getElementById('activeStrategyTag');
-  const chunksContainer = document.getElementById('chunksContainer');
+  // Results DOM
+  const p50Val = document.getElementById('p50Val');
+  const p70Val = document.getElementById('p70Val');
+  const p100Val = document.getElementById('p100Val');
+  const complianceVal = document.getElementById('complianceVal');
 
-  // Benchmark Metrics DOM
-  const p50Value = document.getElementById('p50Value');
-  const p70Value = document.getElementById('p70Value');
-  const p100Value = document.getElementById('p100Value');
-  const complianceValue = document.getElementById('complianceValue');
+  const totLatDisplay = document.getElementById('totLatDisplay');
+  const targetCompliantBadge = document.getElementById('targetCompliantBadge');
+  const valStt = document.getElementById('valStt');
+  const valRet = document.getElementById('valRet');
+  const valGuard = document.getElementById('valGuard');
+  const valLlm = document.getElementById('valLlm');
 
-  // App State
+  const barStt = document.getElementById('barStt');
+  const barRet = document.getElementById('barRet');
+  const barGuard = document.getElementById('barGuard');
+  const barLlm = document.getElementById('barLlm');
+
+  const transcriptTextDisplay = document.getElementById('transcriptTextDisplay');
+  const sttMetaTag = document.getElementById('sttMetaTag');
+  const answerBodyText = document.getElementById('answerBodyText');
+  const guardrailBadge = document.getElementById('guardrailBadge');
+  const activeStratBadge = document.getElementById('activeStratBadge');
+  const chunksListContainer = document.getElementById('chunksListContainer');
+
+  // State
   let activeStrategy = 'sentence_based';
   let activeSttProvider = 'sarvam';
+  let activeLang = 'en-IN';
   let isRecording = false;
   let mediaRecorder = null;
   let audioChunks = [];
 
-  // 1. Fetch Benchmark Stats on load
-  async function loadBenchmarkStats() {
+  // Canvas context for audio wave
+  const ctx = waveformCanvas ? waveformCanvas.getContext('2d') : null;
+  let animId = null;
+
+  // 1. Draw Waveform Visualizer
+  function drawWaveform(isSpeaking = false) {
+    if (!ctx) return;
+    ctx.clearRect(0, 0, waveformCanvas.width, waveformCanvas.height);
+    const bars = 30;
+    const barWidth = 4;
+    const gap = 6;
+    const startX = (waveformCanvas.width - (bars * (barWidth + gap))) / 2;
+
+    for (let i = 0; i < bars; i++) {
+      const x = startX + i * (barWidth + gap);
+      const height = isSpeaking ? Math.sin(Date.now() * 0.01 + i) * 18 + 22 : 4;
+      const gradient = ctx.createLinearGradient(0, 0, 0, waveformCanvas.height);
+      gradient.addColorStop(0, '#6366f1');
+      gradient.addColorStop(1, '#06b6d4');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(x, (waveformCanvas.height - height) / 2, barWidth, height);
+    }
+    if (isSpeaking) {
+      animId = requestAnimationFrame(() => drawWaveform(true));
+    }
+  }
+  drawWaveform(false);
+
+  // 2. Fetch Benchmark Metrics
+  async function loadBenchmarkData() {
     try {
       const res = await fetch('/api/benchmark');
       if (res.ok) {
         const data = await res.json();
-        p50Value.textContent = `${data.P50_ms} ms`;
-        p70Value.textContent = `${data.P70_ms} ms`;
-        p100Value.textContent = `${data.P100_ms} ms`;
-        complianceValue.textContent = `${data.under_200ms_percentage}%`;
+        p50Val.textContent = `${data.P50_ms} ms`;
+        p70Val.textContent = `${data.P70_ms} ms`;
+        p100Val.textContent = `${data.P100_ms} ms`;
+        complianceVal.textContent = `${data.under_200ms_percentage}%`;
       }
     } catch (e) {
-      console.warn("Could not load benchmark stats:", e);
+      console.warn("Could not load benchmark metrics:", e);
     }
   }
-  loadBenchmarkStats();
+  loadBenchmarkData();
 
-  // 2. Strategy Switching Handler
-  strategyBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      strategyBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      activeStrategy = btn.getAttribute('data-strategy');
-      activeStrategyTag.textContent = activeStrategy;
+  // 3. Strategy Switcher
+  stratPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      stratPills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      activeStrategy = pill.getAttribute('data-strategy');
+      activeStratBadge.textContent = activeStrategy;
     });
   });
 
-  // 3. STT Provider Handler
-  sttRadioPills.forEach(radio => {
-    radio.addEventListener('change', (e) => {
-      document.querySelectorAll('.radio-pill').forEach(p => p.classList.remove('active'));
-      e.target.closest('.radio-pill').classList.add('active');
-      activeSttProvider = e.target.value;
-    });
+  // 4. Select Dropdowns
+  sttProviderSelect.addEventListener('change', (e) => {
+    activeSttProvider = e.target.value;
+    sttMetaTag.textContent = activeSttProvider === 'sarvam' ? 'Sarvam saaras:v3' : 'ElevenLabs STT';
   });
 
-  // 4. Sample Query Chips Handler
-  sampleChips.forEach(chip => {
+  langSelect.addEventListener('change', (e) => {
+    activeLang = e.target.value;
+  });
+
+  // 5. Topic Chips
+  qtChips.forEach(chip => {
     chip.addEventListener('click', () => {
-      const q = chip.getAttribute('data-query');
-      queryInput.value = q;
-      executeQuery(q);
+      const q = chip.getAttribute('data-q');
+      textQueryInput.value = q;
+      runQueryPipeline(q);
     });
   });
 
-  // 5. Mic Audio Recorder
-  micButton.addEventListener('click', async () => {
+  // 6. Mic Trigger
+  micBtn.addEventListener('click', () => {
     if (!isRecording) {
       startRecording();
     } else {
@@ -99,10 +134,8 @@ document.addEventListener('DOMContentLoaded', () => {
       mediaRecorder = new MediaRecorder(stream);
       audioChunks = [];
 
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunks.push(event.data);
-        }
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunks.push(e.data);
       };
 
       mediaRecorder.onstop = async () => {
@@ -110,19 +143,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const reader = new FileReader();
         reader.readAsDataURL(audioBlob);
         reader.onloadend = () => {
-          const base64Audio = reader.result.split(',')[1];
-          executeQuery(null, base64Audio);
+          const b64 = reader.result.split(',')[1];
+          runQueryPipeline(null, b64);
         };
       };
 
       mediaRecorder.start();
       isRecording = true;
-      micButton.classList.add('recording');
-      micStatusText.textContent = "Listening... Click to stop recording";
+      micRing.classList.add('recording');
+      micCaption.textContent = "Listening... Click mic to finish recording";
+      drawWaveform(true);
     } catch (err) {
-      console.warn("Microphone access unavailable or denied. Using fast prompt encoder:", err);
-      micStatusText.textContent = "Mic access blocked. Using fast audio prompt fallback...";
-      executeQuery(queryInput.value || "What are the advantages of solar energy?");
+      console.warn("Mic access blocked or unsupported:", err);
+      micCaption.textContent = "Mic unavailable. Running prompt query...";
+      runQueryPipeline(textQueryInput.value || "What are the advantages of solar energy?");
     }
   }
 
@@ -130,117 +164,119 @@ document.addEventListener('DOMContentLoaded', () => {
     if (mediaRecorder && isRecording) {
       mediaRecorder.stop();
       isRecording = false;
-      micButton.classList.remove('recording');
-      micStatusText.textContent = "Processing audio transcription...";
+      micRing.classList.remove('recording');
+      micCaption.textContent = "Transcribing audio via Sarvam AI saaras:v3...";
+      if (animId) cancelAnimationFrame(animId);
+      drawWaveform(false);
     }
   }
 
-  // 6. Submit Query Button Handler
-  btnSubmitQuery.addEventListener('click', () => {
-    const q = queryInput.value.trim();
-    if (q) executeQuery(q);
+  // 7. Execute Button
+  btnExecuteRAG.addEventListener('click', () => {
+    const q = textQueryInput.value.trim();
+    if (q) runQueryPipeline(q);
   });
 
-  queryInput.addEventListener('keypress', (e) => {
+  textQueryInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
-      const q = queryInput.value.trim();
-      if (q) executeQuery(q);
+      const q = textQueryInput.value.trim();
+      if (q) runQueryPipeline(q);
     }
   });
 
-  // 7. Execute Query Pipeline API Call
-  async function executeQuery(textQuery = null, base64Audio = null) {
-    btnSubmitQuery.disabled = true;
-    answerOutputText.innerHTML = "⚡ <em>Processing Voice RAG Pipeline...</em>";
+  // 8. Pipeline Execution API Call
+  async function runQueryPipeline(queryText = null, base64Audio = null) {
+    btnExecuteRAG.disabled = true;
+    answerBodyText.innerHTML = "⚡ <em>Executing Voice RAG pipeline... (Sarvam STT ➔ FAISS ➔ Guardrail ➔ LLM)</em>";
 
     try {
-      const payload = {
-        query: textQuery,
-        audio_base64: base64Audio,
-        strategy: activeStrategy,
-        stt_provider: activeSttProvider,
-        top_k: 3
-      };
-
       const res = await fetch('/api/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          query: queryText,
+          audio_base64: base64Audio,
+          strategy: activeStrategy,
+          stt_provider: activeSttProvider,
+          top_k: 3
+        })
       });
 
-      if (!res.ok) throw new Error("API request failed");
+      if (!res.ok) throw new Error("Query API error");
 
       const data = await res.json();
-      renderQueryResponse(data);
+      renderResponse(data);
     } catch (err) {
       console.error(err);
-      answerOutputText.textContent = "Error executing query. Please check backend connection.";
+      answerBodyText.textContent = "Error communicating with backend.";
     } finally {
-      btnSubmitQuery.disabled = false;
-      micStatusText.textContent = "Click mic to record voice prompt";
+      btnExecuteRAG.disabled = false;
+      micCaption.textContent = "Click microphone button to record voice prompt";
     }
   }
 
-  // 8. Render Response & Latency Metrics
-  function renderQueryResponse(data) {
-    // Total Latency & Target Badge
+  // 9. Render Pipeline Results
+  function renderResponse(data) {
+    // Total Latency & Compliance Badge
     const tot = data.total_latency_ms;
-    totalLatencyNum.textContent = tot.toFixed(1);
+    totLatDisplay.textContent = tot.toFixed(1);
 
     if (data.latency_target_met) {
-      targetBadgeStatus.textContent = "⚡ < 200ms Target Passed";
-      targetBadgeStatus.style.background = "rgba(16, 185, 129, 0.2)";
-      targetBadgeStatus.style.color = "#34d399";
+      targetCompliantBadge.innerHTML = '<span class="pulse-dot-green"></span> Sub-200ms Target Passed';
+      targetCompliantBadge.style.background = 'rgba(16, 185, 129, 0.15)';
+      targetCompliantBadge.style.color = '#34d399';
     } else {
-      targetBadgeStatus.textContent = "⚠️ Over 200ms";
-      targetBadgeStatus.style.background = "rgba(245, 158, 11, 0.2)";
-      targetBadgeStatus.style.color = "#fbbf24";
+      targetCompliantBadge.innerHTML = '⚠️ Over 200ms Target';
+      targetCompliantBadge.style.background = 'rgba(245, 158, 11, 0.15)';
+      targetCompliantBadge.style.color = '#fbbf24';
     }
 
-    // Pipeline Breakdown Values
-    sttLatVal.textContent = data.stt_latency_ms.toFixed(1);
-    retLatVal.textContent = data.retrieval_latency_ms.toFixed(1);
-    guardLatVal.textContent = data.guardrail_latency_ms.toFixed(1);
-    llmLatVal.textContent = data.llm_latency_ms.toFixed(1);
+    // Breakdown Values
+    valStt.textContent = data.stt_latency_ms.toFixed(1);
+    valRet.textContent = data.retrieval_latency_ms.toFixed(1);
+    valGuard.textContent = data.guardrail_latency_ms.toFixed(1);
+    valLlm.textContent = data.llm_latency_ms.toFixed(1);
 
-    // Update Progress Bar Proportions
     const sum = (data.stt_latency_ms + data.retrieval_latency_ms + data.guardrail_latency_ms + data.llm_latency_ms) || 1;
-    segStt.style.width = `${(data.stt_latency_ms / sum) * 100}%`;
-    segRet.style.width = `${(data.retrieval_latency_ms / sum) * 100}%`;
-    segGuard.style.width = `${(data.guardrail_latency_ms / sum) * 100}%`;
-    segLlm.style.width = `${(data.llm_latency_ms / sum) * 100}%`;
+    barStt.style.width = `${(data.stt_latency_ms / sum) * 100}%`;
+    barRet.style.width = `${(data.retrieval_latency_ms / sum) * 100}%`;
+    barGuard.style.width = `${(data.guardrail_latency_ms / sum) * 100}%`;
+    barLlm.style.width = `${(data.llm_latency_ms / sum) * 100}%`;
 
-    // Render Answer & Guardrail Pill
-    answerOutputText.textContent = data.answer;
+    // Transcript
+    transcriptTextDisplay.textContent = `"${data.query}"`;
+
+    // Answer & Guardrail Badge
+    answerBodyText.textContent = data.answer;
     if (data.grounded) {
-      guardPill.textContent = "Grounding Score: " + (data.grounding_score * 100).toFixed(0) + "%";
-      guardPill.style.background = "rgba(16, 185, 129, 0.2)";
-      guardPill.style.color = "#34d399";
+      guardrailBadge.innerHTML = '🛡️ Grounding Score: ' + (data.grounding_score * 100).toFixed(0) + '%';
+      guardrailBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+      guardrailBadge.style.color = '#34d399';
     } else {
-      guardPill.textContent = "Refusal Refutation";
-      guardPill.style.background = "rgba(244, 63, 94, 0.2)";
-      guardPill.style.color = "#f43f5e";
+      guardrailBadge.innerHTML = '🛑 Refusal Refutation';
+      guardrailBadge.style.background = 'rgba(244, 63, 94, 0.2)';
+      guardrailBadge.style.color = '#f43f5e';
     }
 
-    // Render Top-K Chunks
-    chunksContainer.innerHTML = '';
+    // Top-K Chunks
+    chunksListContainer.innerHTML = '';
     if (data.retrieved_chunks && data.retrieved_chunks.length > 0) {
       data.retrieved_chunks.forEach((chunk, i) => {
-        const div = document.createElement('div');
-        div.className = 'chunk-card';
-        const simScore = (chunk.similarity_score !== undefined) ? chunk.similarity_score.toFixed(4) : "N/A";
+        const item = document.createElement('div');
+        item.className = 'chunk-item';
+        const sim = (chunk.similarity_score !== undefined) ? chunk.similarity_score.toFixed(4) : 'N/A';
         const title = chunk.title || chunk.doc_id || `Passage #${i+1}`;
-        div.innerHTML = `
-          <div class="chunk-meta">
+        item.innerHTML = `
+          <div class="ci-meta">
             <span>[#${i+1}] ${title}</span>
-            <span>Cosine Sim: ${simScore}</span>
+            <span>FAISS Cosine Sim: ${sim}</span>
           </div>
-          <div class="chunk-body">${chunk.text}</div>
+          <div class="ci-text">${chunk.text}</div>
         `;
-        chunksContainer.appendChild(div);
+        chunksListContainer.appendChild(item);
       });
     } else {
-      chunksContainer.innerHTML = '<div class="empty-state">No context passages met grounding threshold.</div>';
+      chunksListContainer.innerHTML = '<div class="empty-state">No context passages met grounding threshold.</div>';
     }
   }
 });
