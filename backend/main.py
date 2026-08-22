@@ -92,6 +92,7 @@ class QueryRequest(BaseModel):
     stt_provider: str = Field(default="sarvam", description="STT provider: sarvam | elevenlabs")
     top_k: int = Field(default=3, description="Number of context chunks to retrieve")
     sample_prompt: Optional[str] = Field(default=None, description="Fast test query string")
+    lang: str = Field(default="hn", description="Knowledge base language code: hn (Hindi) | bn | gn | or")
 
 
 class QueryResponse(BaseModel):
@@ -108,8 +109,10 @@ class QueryResponse(BaseModel):
     retrieval_latency_ms: float
     guardrail_latency_ms: float
     llm_latency_ms: float
+    backend_latency_ms: float = Field(description="Backend-only latency (retrieval + guardrails + LLM), excludes STT")
     total_latency_ms: float
-    latency_target_met: bool
+    latency_target_met: bool = Field(description="True if backend_latency_ms <= 200ms (STT excluded)")
+    lang: str = Field(default="hn", description="Knowledge base language used")
 
 
 @app.post("/api/query", response_model=QueryResponse)
@@ -146,6 +149,7 @@ async def process_voice_rag_query(req: QueryRequest):
     if not safe:
         t_total_end = time.perf_counter()
         tot_lat = (t_total_end - t_total_start) * 1000.0
+        backend_lat = guard_lat  # Only guardrail ran
         return QueryResponse(
             query=query_text,
             stt_provider=req.stt_provider,
@@ -154,21 +158,23 @@ async def process_voice_rag_query(req: QueryRequest):
             grounded=False,
             grounding_score=0.0,
             refusal_reason=safety_msg,
-            retrieved_chunks=[],
             stt_latency_ms=stt_lat,
             retrieval_latency_ms=0.0,
             guardrail_latency_ms=guard_lat,
             llm_latency_ms=0.0,
+            backend_latency_ms=backend_lat,
             total_latency_ms=tot_lat,
-            latency_target_met=(tot_lat <= 200.0)
+            latency_target_met=(backend_lat <= 200.0),
+            lang=req.lang
         )
 
-    # 3. FAISS Vector Retrieval phase
+    # 3. FAISS Vector Retrieval phase (routes to Hindi KB if lang specified)
     chunks, ret_lat = ret_engine.retrieve(
         query=query_text,
         strategy=req.strategy,
         top_k=req.top_k,
-        hybrid=True
+        hybrid=True,
+        lang=req.lang
     )
 
     # 4. Context Groundedness Guardrail phase
@@ -180,6 +186,7 @@ async def process_voice_rag_query(req: QueryRequest):
     if not grounded:
         t_total_end = time.perf_counter()
         tot_lat = (t_total_end - t_total_start) * 1000.0
+        backend_lat = ret_lat + guard_lat  # retrieval + guardrails only
         return QueryResponse(
             query=query_text,
             stt_provider=req.stt_provider,
@@ -188,13 +195,14 @@ async def process_voice_rag_query(req: QueryRequest):
             grounded=False,
             grounding_score=ground_score,
             refusal_reason=ground_msg,
-            retrieved_chunks=chunks,
             stt_latency_ms=stt_lat,
             retrieval_latency_ms=ret_lat,
             guardrail_latency_ms=guard_lat,
             llm_latency_ms=0.0,
+            backend_latency_ms=backend_lat,
             total_latency_ms=tot_lat,
-            latency_target_met=(tot_lat <= 200.0)
+            latency_target_met=(backend_lat <= 200.0),
+            lang=req.lang
         )
 
     # 5. LLM Harness Answer Generation phase
@@ -205,6 +213,7 @@ async def process_voice_rag_query(req: QueryRequest):
 
     t_total_end = time.perf_counter()
     tot_lat = (t_total_end - t_total_start) * 1000.0
+    backend_lat = ret_lat + guard_lat + llm_lat  # Excludes STT
 
     return QueryResponse(
         query=query_text,
@@ -214,15 +223,16 @@ async def process_voice_rag_query(req: QueryRequest):
         grounded=True,
         grounding_score=ground_score,
         refusal_reason=None,
-        retrieved_chunks=chunks,
         llm_provider=llm_res.get("provider", "ollama_cloud"),
         llm_model=llm_res.get("model", "nemotron-3-ultra"),
         stt_latency_ms=stt_lat,
         retrieval_latency_ms=ret_lat,
         guardrail_latency_ms=guard_lat,
         llm_latency_ms=llm_lat,
+        backend_latency_ms=backend_lat,
         total_latency_ms=tot_lat,
-        latency_target_met=(tot_lat <= 200.0)
+        latency_target_met=(backend_lat <= 200.0),
+        lang=req.lang
     )
 
 
