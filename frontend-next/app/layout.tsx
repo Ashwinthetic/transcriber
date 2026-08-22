@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AppProvider } from "../context/AppContext";
+import ClientLayout from "./ClientLayout";
 
 export const metadata: Metadata = {
   title: "Transcriber AI — Voice-Enabled RAG Studio",
@@ -14,7 +16,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        <AppProvider>
+          <ClientLayout>{children}</ClientLayout>
+        </AppProvider>
+      </body>
     </html>
   );
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import styles from "./BenchmarkRibbon.module.css";
@@ -13,24 +12,38 @@ interface BenchmarkData {
   total_queries_tested: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const cardVariants: any = {
-  hidden: { y: 30, opacity: 0, scale: 0.95 },
-  visible: (i: number) => ({
-    y: 0,
-    opacity: 1,
-    scale: 1,
-    transition: { delay: 0.5 + i * 0.1, duration: 0.5, ease: "easeOut" },
-  }),
-};
-
 export default function BenchmarkRibbon({
   data,
 }: {
   data: BenchmarkData | null;
 }) {
+  const ribbonRef = useRef<HTMLDivElement>(null);
   const valRefs = useRef<(HTMLSpanElement | null)[]>([]);
 
+  // Entrance animation
+  useEffect(() => {
+    if (!ribbonRef.current) return;
+
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+    tl.fromTo(
+      ribbonRef.current.children,
+      { y: 40, opacity: 0, scale: 0.92 },
+      {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: "back.out(1.2)",
+        clearProps: "transform",
+      }
+    );
+
+    return () => { tl.kill(); };
+  }, []);
+
+  // Number counting animation
   useEffect(() => {
     if (!data) return;
     const values = [data.P50_ms, 48.50, data.P100_ms, data.under_200ms_percentage];
@@ -41,8 +54,8 @@ export default function BenchmarkRibbon({
         { val: values[i] },
         {
           val: values[i],
-          duration: 1.2,
-          delay: 0.6 + i * 0.15,
+          duration: 1.5,
+          delay: 0.4 + i * 0.15,
           ease: "power2.out",
           onUpdate: function () {
             const v = this.targets()[0].val;
@@ -88,15 +101,12 @@ export default function BenchmarkRibbon({
   ];
 
   return (
-    <div className={styles.ribbon}>
+    <div ref={ribbonRef} className={styles.ribbon}>
       {cards.map((card, i) => (
-        <motion.div
+        <div
           key={card.label}
           className={`${styles.card} ${card.shadowClass}`}
-          custom={i}
-          variants={cardVariants}
-          initial="hidden"
-          animate="visible"
+          style={{ opacity: 0 }}
         >
           <span className={styles.cardLabel}>{card.label}</span>
           <span
@@ -107,7 +117,7 @@ export default function BenchmarkRibbon({
             {card.value}
           </span>
           <span className={styles.cardSub}>{card.sub}</span>
-        </motion.div>
+        </div>
       ))}
     </div>
   );

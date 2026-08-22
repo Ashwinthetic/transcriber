@@ -56,16 +56,26 @@ export default function HeroVoice({
   useEffect(() => {
     drawWave(isRecording);
     if (isRecording && ringRef.current) {
-      gsap.to(ringRef.current, {
-        boxShadow: "0 0 0 12px rgba(226, 59, 34, 0.15)",
-        duration: 0.6,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-      });
+      gsap.fromTo(
+        ringRef.current,
+        { boxShadow: "0 0 0 0px rgba(226, 59, 34, 0.6)", scale: 1 },
+        {
+          boxShadow: "0 0 25px 20px rgba(226, 59, 34, 0.2)",
+          scale: 1.08,
+          duration: 0.8,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+        }
+      );
     } else if (ringRef.current) {
       gsap.killTweensOf(ringRef.current);
-      gsap.set(ringRef.current, { boxShadow: "none" });
+      gsap.to(ringRef.current, {
+        boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
+        scale: 1,
+        duration: 0.4,
+        ease: "power2.out",
+      });
     }
     return () => {
       if (animRef.current) cancelAnimationFrame(animRef.current);

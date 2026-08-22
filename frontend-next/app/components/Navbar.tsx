@@ -1,36 +1,60 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
 import styles from "./Navbar.module.css";
 
 export default function Navbar() {
+  const navRef = useRef<HTMLElement>(null);
+  const brandRef = useRef<HTMLDivElement>(null);
+  const pillsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+    // 1. Navbar slides down
+    tl.fromTo(
+      navRef.current,
+      { y: -80, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8 }
+    );
+
+    // 2. Brand logo and text stagger in
+    if (brandRef.current) {
+      tl.fromTo(
+        brandRef.current.children,
+        { x: -20, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.5, stagger: 0.1 },
+        "-=0.4"
+      );
+    }
+
+    // 3. Pills pop in with elastic spring
+    if (pillsRef.current) {
+      tl.fromTo(
+        pillsRef.current.children,
+        { scale: 0, opacity: 0, rotation: -10 },
+        {
+          scale: 1,
+          opacity: 1,
+          rotation: 0,
+          duration: 0.6,
+          stagger: 0.1,
+          ease: "back.out(1.7)",
+          clearProps: "transform",
+        },
+        "-=0.3"
+      );
+    }
+
+    return () => { tl.kill(); };
+  }, []);
+
   return (
-    <motion.nav
-      className={styles.navbar}
-      initial={{ y: -60, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-    >
-      <div className={styles.brand}>
-        <div className={styles.logoBox}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M12 2L2 7L12 12L22 7L12 2Z"
-              fill="var(--chili-red)"
-              stroke="var(--ink-black)"
-              strokeWidth="1.5"
-            />
-            <path
-              d="M2 17L12 22L22 17"
-              stroke="var(--ink-black)"
-              strokeWidth="1.5"
-            />
-            <path
-              d="M2 12L12 17L22 12"
-              stroke="var(--ink-black)"
-              strokeWidth="1.5"
-            />
-          </svg>
+    <nav ref={navRef} className={styles.navbar} style={{ opacity: 0 }}>
+      <div ref={brandRef} className={styles.brand}>
+        <div className={styles.logoBox} style={{ border: "none", background: "transparent" }}>
+          <img src="/assets/goa_hindi.svg" alt="Goa Logo" style={{ width: "32px", height: "32px" }} />
         </div>
         <div className={styles.brandText}>
           <span className={styles.brandName}>
@@ -43,34 +67,16 @@ export default function Navbar() {
         </div>
       </div>
 
-      <div className={styles.pills}>
-        <motion.div
-          className={`${styles.pill} ${styles.pillGreen}`}
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.3, type: "spring" }}
-        >
+      <div ref={pillsRef} className={styles.pills}>
+        <div className={`${styles.pill} ${styles.pillGreen}`}>
           <span className={styles.dot} style={{ background: "#1E4D2B" }} />
           Sarvam AI saaras:v3
-        </motion.div>
-        <motion.div
-          className={`${styles.pill} ${styles.pillRed}`}
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.4, type: "spring" }}
-        >
+        </div>
+        <div className={`${styles.pill} ${styles.pillRed}`}>
           <span className={styles.dot} style={{ background: "#E23B22" }} />
           FAISS Vector Engine
-        </motion.div>
-        <motion.div
-          className={`${styles.pill} ${styles.pillMustard}`}
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.5, type: "spring" }}
-        >
-          ⚡ Latency Target: &lt;200ms
-        </motion.div>
+        </div>
       </div>
-    </motion.nav>
+    </nav>
   );
 }

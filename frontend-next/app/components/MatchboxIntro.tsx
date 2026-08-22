@@ -57,16 +57,55 @@ export default function MatchboxIntro({ onComplete }: { onComplete: () => void }
     <div
       ref={overlayRef}
       className="matchbox-overlay"
-      style={{ pointerEvents: "auto" }}
+      style={{ pointerEvents: "auto", backdropFilter: "blur(15px)" }}
     >
-      <div className="matchbox-outer">
-        <div ref={innerRef} className="matchbox-inner">
-          <div ref={titleRef} className="matchbox-title">
+      <div className="matchbox-outer" style={{ position: "relative", border: "1px solid rgba(255,255,255,0.2)", borderRadius: "24px", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.7)", overflow: "hidden" }}>
+        
+        {/* Background image for the outer box */}
+        <img 
+          src="/assets/hackers.png" 
+          alt="Hackers" 
+          style={{ position: "absolute", width: "100%", height: "100%", objectFit: "cover", opacity: 0.15 }} 
+        />
+        
+        <div ref={innerRef} className="matchbox-inner" style={{ 
+          position: "relative", 
+          zIndex: 2, 
+          background: "linear-gradient(135deg, rgba(4, 56, 29, 0.85) 0%, rgba(12, 94, 54, 0.95) 100%)",
+          backdropFilter: "blur(10px)",
+          border: "1px solid rgba(255, 255, 255, 0.1)",
+          borderRadius: "20px"
+        }}>
+          
+          <img 
+            src="/assets/goa_hindi.svg" 
+            alt="Goa" 
+            style={{ width: "80px", marginBottom: "20px", filter: "drop-shadow(0 0 15px rgba(253, 225, 0, 0.6))" }} 
+          />
+          
+          <div ref={titleRef} className="matchbox-title" style={{ 
+            color: "var(--goa-sun-yellow)", 
+            textShadow: "0 0 20px rgba(253, 225, 0, 0.4)",
+            letterSpacing: "2px"
+          }}>
             TRANSCRIBER
           </div>
-          <div ref={subRef} className="matchbox-sub">
-            Voice RAG · FAISS · Sarvam AI
+          
+          <div ref={subRef} className="matchbox-sub" style={{ 
+            color: "rgba(255, 255, 255, 0.9)",
+            letterSpacing: "3px",
+            marginTop: "8px",
+            fontWeight: "500",
+            textShadow: "0 2px 4px rgba(0,0,0,0.5)"
+          }}>
+            VOICE RAG · FAISS · SARVAM AI
           </div>
+          
+          <img 
+            src="/assets/Hacker house.png" 
+            alt="Hacker House" 
+            style={{ position: "absolute", bottom: "24px", height: "24px", opacity: 0.9, filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))" }} 
+          />
         </div>
       </div>
     </div>

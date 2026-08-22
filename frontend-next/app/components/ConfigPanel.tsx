@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import { gsap } from "gsap";
 import styles from "./ConfigPanel.module.css";
 
 const strategies = [
@@ -43,12 +45,24 @@ export default function ConfigPanel({
   lang,
   onLangChange,
 }: ConfigPanelProps) {
+  const pillsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (pillsRef.current) {
+      gsap.fromTo(
+        pillsRef.current.children,
+        { opacity: 0, y: 15, scale: 0.95 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.08, ease: "back.out(1.4)" }
+      );
+    }
+  }, []);
+
   return (
     <motion.div
       className={styles.panel}
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: 0.8, duration: 0.4 }}
+      transition={{ delay: 0.3, duration: 0.4 }}
     >
       {/* STT & Language Row */}
       <div className={styles.fieldRow}>
@@ -64,17 +78,26 @@ export default function ConfigPanel({
           </select>
         </div>
         <div className={styles.fieldCol}>
-          <label className="section-label">Language</label>
+          <label className="section-label">Language (Manual Selection)</label>
           <select
             className="retro-select"
             value={lang}
             onChange={(e) => onLangChange(e.target.value)}
           >
-            <option value="unknown">🌐 Auto-Detect (Multilingual &amp; Hinglish)</option>
+            <option value="bn-IN">Bengali (bn-IN)</option>
+            <option value="as-IN">Assamese (as-IN)</option>
+            <option value="gu-IN">Gujarati (gu-IN)</option>
             <option value="hi-IN">Hindi (hi-IN)</option>
-            <option value="en-IN">English (en-IN)</option>
+            <option value="kn-IN">Kannada (kn-IN)</option>
+            <option value="ml-IN">Malayalam (ml-IN)</option>
+            <option value="mr-IN">Marathi (mr-IN)</option>
+            <option value="ne-NP">Nepali (ne-NP)</option>
+            <option value="or-IN">Odia (or-IN)</option>
+            <option value="pa-IN">Punjabi (pa-IN)</option>
+            <option value="sa-IN">Sanskrit (sa-IN)</option>
             <option value="ta-IN">Tamil (ta-IN)</option>
             <option value="te-IN">Telugu (te-IN)</option>
+            <option value="ur-IN">Urdu (ur-IN)</option>
           </select>
         </div>
       </div>
@@ -85,7 +108,7 @@ export default function ConfigPanel({
           <label className="section-label">Chunking Strategy Engine</label>
           <span className={styles.evalLink}>Evaluation Requirement</span>
         </div>
-        <div className={styles.stratGrid}>
+        <div ref={pillsRef} className={styles.stratGrid}>
           {strategies.map((s) => (
             <motion.button
               key={s.id}
