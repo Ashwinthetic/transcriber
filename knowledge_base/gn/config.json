@@ -1,0 +1,16 @@
+{
+  "dataset": "ai4bharat/MSMARCO-XI",
+  "language": "gu",
+  "source_file": "train/gujtrain.parquet",
+  "source_rows": 778638,
+  "records_indexed": 778638,
+  "all_records": true,
+  "all_passages_preserved": true,
+  "index": "IVFPQ",
+  "dimension": 384,
+  "nlist": 4096,
+  "pq_m": 48,
+  "pq_bits": 8,
+  "embedding_model": "intfloat/multilingual-e5-small",
+  "elapsed_seconds": 2598.437949557
+}

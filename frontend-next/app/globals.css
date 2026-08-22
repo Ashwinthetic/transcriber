@@ -1,0 +1,338 @@
+/* ========================================================
+   DESIGN SYSTEM — HHGoa Matchbox Theme + Sarvam AI Layout
+   ======================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Rozha+One&family=Space+Grotesk:wght@400;500;600;700&family=Yatra+One&display=swap');
+
+:root {
+  /* Hacker House Goa Emerald Palette */
+  --goa-emerald: #0A663A;
+  --goa-dark-green: #064726;
+  --goa-card-green: #0C5E36;
+  --goa-card-inner: #074B2A;
+  --goa-sun-yellow: #FDE100;
+  --goa-neon-pink: #FDE100;
+  --goa-sand-white: #F5F7EB;
+  --goa-sage-text: #B4D4C0;
+  --goa-outline-black: #042413;
+
+  /* Theme Mapping */
+  --cream: #0A663A;
+  --parchment: var(--goa-card-inner);
+  --warm-gray: #0E7543;
+  --ink-black: var(--goa-outline-black);
+  --chili-red: var(--goa-neon-pink);
+  --mustard: var(--goa-sun-yellow);
+  --forest-green: #04381D;
+
+  /* Semantic */
+  --bg-primary: var(--goa-emerald);
+  --bg-card: var(--goa-card-green);
+  --bg-card-alt: var(--goa-card-inner);
+  --text-primary: var(--goa-sand-white);
+  --text-secondary: #D4E8DC;
+  --text-muted: var(--goa-sage-text);
+  --accent-primary: var(--goa-sun-yellow);
+  --accent-secondary: var(--goa-neon-pink);
+  --accent-tertiary: var(--goa-sun-yellow);
+  --border-color: #084D2B;
+  --border-strong: var(--goa-outline-black);
+
+  /* Retro Shadow Offsets */
+  --shadow-sm: 3px 3px 0 var(--ink-black);
+  --shadow-md: 5px 5px 0 var(--ink-black);
+  --shadow-red: 4px 4px 0 var(--goa-neon-pink);
+  --shadow-mustard: 4px 4px 0 var(--goa-sun-yellow);
+  --shadow-green: 4px 4px 0 var(--ink-black);
+
+  /* Typography */
+  --font-heading: 'Rozha One', serif;
+  --font-accent: 'Yatra One', cursive;
+  --font-body: 'Space Grotesk', sans-serif;
+
+  /* Spacing */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* Utility classes */
+.retro-card {
+  background: rgba(12, 94, 54, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, background 0.4s ease, border-color 0.4s ease;
+}
+
+.retro-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  background: rgba(12, 94, 54, 0.6);
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255,255,255,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.retro-btn {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 14px 28px;
+  border: none;
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Add a subtle shine effect to buttons */
+.retro-btn::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 50%; height: 100%;
+  background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+  transform: skewX(-25deg);
+  transition: left 0.5s ease;
+}
+
+.retro-btn:hover::after {
+  left: 200%;
+}
+
+.retro-btn-primary {
+  background: linear-gradient(135deg, #FDE100, #E23B22);
+  color: var(--ink-black);
+  box-shadow: 0 4px 15px rgba(226, 59, 34, 0.4);
+}
+
+.retro-btn-primary:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 10px 25px rgba(226, 59, 34, 0.6), 0 0 15px rgba(253, 225, 0, 0.4);
+}
+
+.retro-btn-primary:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.retro-btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.retro-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), 0 0 15px rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Retro Input */
+.retro-input {
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 14px 18px;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.retro-input:focus {
+  border: 1px solid rgba(253, 225, 0, 0.5); /* Goa yellow */
+  box-shadow: 0 0 10px rgba(253, 225, 0, 0.3), inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Retro Select */
+.retro-select {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 12px 18px;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  transition: all 0.2s ease;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='rgba(255,255,255,0.7)' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+}
+
+.retro-select:focus {
+  border: 1px solid rgba(253, 225, 0, 0.5);
+  box-shadow: 0 0 10px rgba(253, 225, 0, 0.3);
+}
+
+.retro-select option {
+  background: var(--goa-card-green);
+  color: white;
+}
+
+/* Retro Badge */
+.retro-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  backdrop-filter: blur(4px);
+}
+
+.badge-green {
+  background: rgba(4, 56, 29, 0.7);
+  color: var(--goa-sun-yellow);
+  border: 1px solid rgba(253, 225, 0, 0.4);
+  box-shadow: 0 0 10px rgba(253, 225, 0, 0.2);
+}
+
+.badge-red {
+  background: linear-gradient(135deg, rgba(226, 59, 34, 0.8), rgba(226, 59, 34, 0.4));
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 10px rgba(226, 59, 34, 0.4);
+}
+
+.badge-mustard {
+  background: linear-gradient(135deg, rgba(253, 225, 0, 0.9), rgba(253, 225, 0, 0.6));
+  color: var(--ink-black);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 15px rgba(253, 225, 0, 0.4);
+}
+
+/* Section label */
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-muted);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--parchment);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--warm-gray);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Matchbox intro overlay */
+.matchbox-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.matchbox-outer {
+  width: 500px;
+  height: 320px;
+  background: var(--forest-green);
+  border: 4px solid var(--ink-black);
+  border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 8px 8px 0 var(--ink-black);
+}
+
+.matchbox-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--chili-red);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.matchbox-title {
+  font-family: var(--font-heading);
+  font-size: 42px;
+  color: var(--cream);
+  text-shadow: 2px 2px 0 var(--ink-black);
+}
+
+.matchbox-sub {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: rgba(255, 243, 220, 0.8);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}

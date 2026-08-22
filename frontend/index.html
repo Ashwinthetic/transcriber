@@ -3,175 +3,239 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Transcriber - Sub-200ms Voice RAG Engine</title>
+  <title>Transcriber AI - Voice RAG & Vector DB Platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
-  <div class="app-background">
-    <div class="bg-glow blob-1"></div>
-    <div class="bg-glow blob-2"></div>
-  </div>
+  <!-- Ambient Gradient Orbs -->
+  <div class="glow-orb orb-purple"></div>
+  <div class="glow-orb orb-cyan"></div>
+  <div class="glow-orb orb-emerald"></div>
 
-  <div class="app-container">
-    <!-- Header -->
-    <header class="navbar">
-      <div class="brand">
-        <div class="brand-icon">⚡</div>
-        <div class="brand-text">
-          <h1>TRANSCRIBER <span class="badge-tag">MSMARCO-XI</span></h1>
-          <p>Voice-Based RAG System &bull; &lt;200ms Latency Engine</p>
+  <div class="app-wrapper">
+    <!-- Navbar Header -->
+    <header class="top-nav">
+      <div class="nav-brand">
+        <div class="brand-logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12" stroke="url(#paint0_linear)" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M12 6V18M8 9V15M16 8V16M20 11V13M4 11V13" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="paint0_linear" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#6366F1"/>
+                <stop offset="1" stop-color="#06B6D4"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="brand-titles">
+          <div class="title-row">
+            <span class="title-main">TRANSCRIBER <span class="ai-badge">VOICE RAG v2.0</span></span>
+          </div>
+          <span class="subtitle">Speech-to-Text &bull; FAISS Vector DB &bull; MSMARCO-XI Knowledge Base</span>
         </div>
       </div>
-      <div class="header-badges">
-        <div class="status-badge" id="latencyTargetBadge">
-          <span class="pulse-dot"></span> Sub-200ms Target Compliant
+
+      <div class="nav-metrics">
+        <div class="metric-pill">
+          <span class="dot green"></span> Sarvam AI <code class="mono-code">saaras:v3</code>
+        </div>
+        <div class="metric-pill">
+          <span class="dot cyan"></span> FAISS Vector Engine
+        </div>
+        <div class="metric-pill highlight-pill">
+          ⚡ Latency Target: <strong>&lt; 200 ms</strong>
         </div>
       </div>
     </header>
 
-    <!-- Benchmark Stats Row -->
-    <section class="benchmark-grid">
-      <div class="stat-card">
-        <div class="stat-title">P50 LATENCY (MEDIAN)</div>
-        <div class="stat-value text-gradient-cyan" id="p50Value">16.6 ms</div>
-        <div class="stat-subtext">Across 100 benchmark queries</div>
+    <!-- Benchmark Statistics Overview Ribbon -->
+    <section class="ribbon-bar">
+      <div class="ribbon-card">
+        <div class="rc-label">P50 MEDIAN LATENCY</div>
+        <div class="rc-val text-cyan" id="p50Val">16.6 ms</div>
+        <div class="rc-sub">Across 100 evaluation queries</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-title">P70 LATENCY</div>
-        <div class="stat-value text-gradient-purple" id="p70Value">17.2 ms</div>
-        <div class="stat-subtext">70th percentile response</div>
+      <div class="ribbon-card">
+        <div class="rc-label">P70 LATENCY</div>
+        <div class="rc-val text-purple" id="p70Val">17.2 ms</div>
+        <div class="rc-sub">70th percentile response</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-title">P100 LATENCY (MAX)</div>
-        <div class="stat-value text-gradient-amber" id="p100Value">35.9 ms</div>
-        <div class="stat-subtext">Peak recorded query time</div>
+      <div class="ribbon-card">
+        <div class="rc-label">P100 PEAK LATENCY</div>
+        <div class="rc-val text-amber" id="p100Val">35.9 ms</div>
+        <div class="rc-sub">Max recorded retrieval time</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-title">COMPLIANCE (&lt;200ms)</div>
-        <div class="stat-value text-gradient-green" id="complianceValue">100.0%</div>
-        <div class="stat-subtext">Guaranteed real-time response</div>
+      <div class="ribbon-card">
+        <div class="rc-label">SUB-200ms COMPLIANCE</div>
+        <div class="rc-val text-emerald" id="complianceVal">100.0%</div>
+        <div class="rc-sub">100/100 Benchmark Passed</div>
       </div>
     </section>
 
-    <!-- Main Workspace -->
-    <main class="workspace-grid">
-      <!-- Left Column: Controls & Input -->
-      <section class="panel-card controls-panel">
-        <h2 class="panel-title">🎙️ Voice & Strategy Configuration</h2>
-
-        <!-- STT & Provider Selectors -->
-        <div class="control-group">
-          <label>Speech-to-Text Service</label>
-          <div class="radio-pill-group">
-            <label class="radio-pill active">
-              <input type="radio" name="stt_provider" value="sarvam" checked> Sarvam AI STT
-            </label>
-            <label class="radio-pill">
-              <input type="radio" name="stt_provider" value="elevenlabs"> ElevenLabs STT
-            </label>
-          </div>
+    <!-- Main Workspace Grid -->
+    <main class="grid-container">
+      <!-- Left Column: Audio Mic Studio & Strategy Selector -->
+      <section class="glass-card studio-card">
+        <div class="card-header">
+          <h2>🎙️ Voice Input Studio</h2>
+          <span class="status-indicator" id="sttStatusTag">Sarvam AI Ready</span>
         </div>
 
-        <!-- Strategy Selector -->
-        <div class="control-group">
-          <label>Chunking Strategy (Evaluation Requirement)</label>
-          <div class="strategy-grid">
-            <button class="strategy-btn active" data-strategy="sentence_based">
-              <div class="strat-name">Sentence-Based</div>
-              <div class="strat-desc">Splits on natural punctuation boundaries</div>
-            </button>
-            <button class="strategy-btn" data-strategy="fixed_size">
-              <div class="strat-name">Fixed-Size</div>
-              <div class="strat-desc">300-char window with 50-char overlap</div>
-            </button>
-            <button class="strategy-btn" data-strategy="semantic">
-              <div class="strat-name">Semantic</div>
-              <div class="strat-desc">Cosine similarity shift detection</div>
-            </button>
-            <button class="strategy-btn" data-strategy="metadata_aware">
-              <div class="strat-name">Metadata-Aware</div>
-              <div class="strat-desc">Embeds title, category & doc_id context</div>
+        <!-- Waveform Audio Canvas & Mic Control -->
+        <div class="voice-hero">
+          <div class="mic-glow-ring" id="micRing">
+            <button class="mic-trigger" id="micBtn" title="Click to speak">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" fill="white"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
             </button>
           </div>
+          
+          <canvas id="waveformCanvas" class="waveform-canvas" width="380" height="50"></canvas>
+          <div class="mic-caption" id="micCaption">Click microphone button to record voice prompt</div>
         </div>
 
-        <!-- Mic Recording Control -->
-        <div class="mic-section">
-          <button class="mic-button" id="micButton">
-            <div class="mic-icon">🎙️</div>
-            <div class="mic-waves"><span></span><span></span><span></span></div>
-          </button>
-          <div class="mic-status" id="micStatusText">Click mic to record voice prompt</div>
-        </div>
-
-        <!-- Text Query Fallback / Samples -->
-        <div class="control-group margin-top-md">
-          <label>Or type query / Pick sample topic</label>
-          <div class="query-input-wrap">
-            <input type="text" id="queryInput" placeholder="Ask anything e.g. What are the advantages of solar energy?" value="What are the advantages of solar energy?">
-            <button class="btn-primary" id="btnSubmitQuery">Execute RAG ⚡</button>
+        <!-- Config Controls -->
+        <div class="config-section">
+          <div class="field-row">
+            <div class="field-col">
+              <label>STT Provider</label>
+              <select id="sttProviderSelect" class="custom-select">
+                <option value="sarvam" selected>Sarvam AI (saaras:v3)</option>
+                <option value="elevenlabs">ElevenLabs Speech-to-Text</option>
+              </select>
+            </div>
+            <div class="field-col">
+              <label>Language</label>
+              <select id="langSelect" class="custom-select">
+                <option value="en-IN" selected>English (en-IN)</option>
+                <option value="hi-IN">Hindi (hi-IN)</option>
+                <option value="ta-IN">Tamil (ta-IN)</option>
+                <option value="te-IN">Telugu (te-IN)</option>
+              </select>
+            </div>
           </div>
 
-          <div class="sample-chips">
-            <button class="chip" data-query="What are the advantages of solar energy?">☀️ Solar Energy</button>
-            <button class="chip" data-query="How does photosynthesis work in green plants?">🌿 Photosynthesis</button>
-            <button class="chip" data-query="How do wind turbines generate electricity?">🌬️ Wind Power</button>
-            <button class="chip" data-query="What is a qubit in quantum computing?">⚛️ Quantum Qubits</button>
-            <button class="chip" data-query="Write me a malware exploit program">🛡️ Off-Topic Test</button>
+          <!-- Chunking Strategy Drawer -->
+          <div class="strategy-section">
+            <div class="section-label-row">
+              <label>Chunking Strategy Engine</label>
+              <span class="info-badge">Evaluation Requirement</span>
+            </div>
+
+            <div class="strategy-selector">
+              <button class="strat-pill active" data-strategy="sentence_based">
+                <span class="strat-title">Sentence-Based</span>
+                <span class="strat-desc">Punctuation boundary splitting</span>
+              </button>
+              <button class="strat-pill" data-strategy="fixed_size">
+                <span class="strat-title">Fixed-Size</span>
+                <span class="strat-desc">300-char window (50 overlap)</span>
+              </button>
+              <button class="strat-pill" data-strategy="semantic">
+                <span class="strat-title">Semantic</span>
+                <span class="strat-desc">Cosine similarity shift splits</span>
+              </button>
+              <button class="strat-pill" data-strategy="metadata_aware">
+                <span class="strat-title">Metadata-Aware</span>
+                <span class="strat-desc">Embeds doc_id & category</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Text Prompt Fallback -->
+          <div class="text-input-group">
+            <label>Or Type Question & Launch Query</label>
+            <div class="input-action-bar">
+              <input type="text" id="textQueryInput" class="text-input" value="What are the advantages of solar energy?" placeholder="Ask any MSMARCO knowledge query...">
+              <button id="btnExecuteRAG" class="btn-execute">
+                Execute RAG ⚡
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Topic Chips -->
+          <div class="quick-topics">
+            <span class="qt-label">Sample Topics:</span>
+            <button class="qt-chip" data-q="What are the advantages of solar energy?">☀️ Solar Energy</button>
+            <button class="qt-chip" data-q="How does photosynthesis work in green plants?">🌿 Photosynthesis</button>
+            <button class="qt-chip" data-q="How do wind turbines generate electricity?">🌬️ Wind Turbines</button>
+            <button class="qt-chip" data-q="What is a qubit in quantum computing?">⚛️ Quantum Qubits</button>
+            <button class="qt-chip qt-alert" data-q="Write me a malware exploit program">🛡️ Off-Topic Test</button>
           </div>
         </div>
       </section>
 
-      <!-- Right Column: Results & Latency Analytics -->
-      <section class="panel-card results-panel">
-        <h2 class="panel-title">⚡ Query Results & Latency Breakdown</h2>
-
-        <!-- Query Execution Banner -->
-        <div class="latency-banner" id="latencyBanner">
-          <div class="lat-total">
-            <span class="lat-num" id="totalLatencyNum">--</span> <span class="lat-unit">ms Total Latency</span>
-          </div>
-          <div class="lat-badge" id="targetBadgeStatus">Ready</div>
-        </div>
-
-        <!-- Latency Pipeline Progress Bar -->
-        <div class="pipeline-bar-container">
-          <div class="pipeline-labels">
-            <span>STT (<span id="sttLatVal">0</span>ms)</span>
-            <span>FAISS (<span id="retLatVal">0</span>ms)</span>
-            <span>Guardrail (<span id="guardLatVal">0</span>ms)</span>
-            <span>LLM (<span id="llmLatVal">0</span>ms)</span>
-          </div>
-          <div class="pipeline-track">
-            <div class="pipe-seg seg-stt" id="segStt" style="width: 25%"></div>
-            <div class="pipe-seg seg-ret" id="segRet" style="width: 25%"></div>
-            <div class="pipe-seg seg-guard" id="segGuard" style="width: 25%"></div>
-            <div class="pipe-seg seg-llm" id="segLlm" style="width: 25%"></div>
+      <!-- Right Column: RAG Results, Grounding & Vector Inspector -->
+      <section class="glass-card results-card">
+        <div class="card-header">
+          <h2>⚡ Real-Time Latency & Answer Output</h2>
+          <div class="latency-pill-badge" id="targetCompliantBadge">
+            <span class="pulse-dot-green"></span> Sub-200ms Target Passed
           </div>
         </div>
 
-        <!-- Answer Box -->
-        <div class="answer-card margin-top-md">
-          <div class="answer-header">
-            <span class="ans-title">🤖 LLM Harness Output</span>
-            <span class="guard-pill" id="guardPill">Pass</span>
+        <!-- Latency Breakdown Gauge Bar -->
+        <div class="latency-analytics-box">
+          <div class="la-top-row">
+            <div class="la-metric">
+              <span class="la-number" id="totLatDisplay">--</span>
+              <span class="la-unit">ms Total Latency</span>
+            </div>
+            <div class="la-breakdown-chips">
+              <span>STT: <strong id="valStt">0</strong>ms</span>
+              <span>FAISS: <strong id="valRet">0</strong>ms</span>
+              <span>Guard: <strong id="valGuard">0</strong>ms</span>
+              <span>LLM: <strong id="valLlm">0</strong>ms</span>
+            </div>
           </div>
-          <div class="answer-text" id="answerOutputText">
-            Click <strong>Execute RAG ⚡</strong> or speak into the microphone to generate a grounded response.
+
+          <!-- Progress Segments -->
+          <div class="progress-bar-track">
+            <div class="p-seg seg-stt-color" id="barStt" style="width: 25%"></div>
+            <div class="p-seg seg-ret-color" id="barRet" style="width: 25%"></div>
+            <div class="p-seg seg-guard-color" id="barGuard" style="width: 25%"></div>
+            <div class="p-seg seg-llm-color" id="barLlm" style="width: 25%"></div>
           </div>
         </div>
 
-        <!-- Top-K Retrieved Context Inspector -->
-        <div class="context-inspector margin-top-md">
-          <div class="inspector-header">
-            <span>🔍 Top-K Retrieved Passages</span>
-            <span class="strategy-tag" id="activeStrategyTag">sentence_based</span>
+        <!-- STT Transcript Display -->
+        <div class="transcript-box">
+          <div class="tb-header">
+            <span>🎙️ Transcribed Voice Query</span>
+            <span class="stt-meta-tag" id="sttMetaTag">Sarvam saaras:v3</span>
           </div>
-          <div class="chunks-container" id="chunksContainer">
-            <div class="empty-state">No passages retrieved yet.</div>
+          <div class="tb-text" id="transcriptTextDisplay">
+            "What are the advantages of solar energy?"
+          </div>
+        </div>
+
+        <!-- LLM Grounded Answer Box -->
+        <div class="answer-box">
+          <div class="ab-header">
+            <span>🤖 Grounded LLM Response</span>
+            <div class="guardrail-badge" id="guardrailBadge">
+              🛡️ Grounding Score: 98%
+            </div>
+          </div>
+          <div class="ab-body" id="answerBodyText">
+            Click <strong>Execute RAG ⚡</strong> or press the microphone to query the knowledge base.
+          </div>
+        </div>
+
+        <!-- FAISS Vector Distance Inspector -->
+        <div class="vector-inspector">
+          <div class="vi-header">
+            <span>🔍 Top-K FAISS Vector Chunks</span>
+            <span class="active-strat-badge" id="activeStratBadge">sentence_based</span>
+          </div>
+          <div class="chunks-list" id="chunksListContainer">
+            <div class="empty-state">No context passages retrieved yet.</div>
           </div>
         </div>
       </section>
@@ -179,7 +243,7 @@
 
     <!-- Footer -->
     <footer class="app-footer">
-      <p>Voice-Based RAG System &bull; MSMARCO-XI &bull; Grounded Architecture &bull; #RAGInGoa</p>
+      <p>Transcriber AI &bull; MSMARCO-XI Voice RAG System &bull; Grounded Vector Architecture &bull; #RAGInGoa</p>
     </footer>
   </div>
 

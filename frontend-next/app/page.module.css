@@ -1,0 +1,88 @@
+.appWrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.gridContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.leftCol, .rightCol {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.sectionCard {
+  background: var(--bg-card);
+  border: 2.5px solid var(--ink-black);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 12px;
+}
+
+.stepBadge {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 10px;
+  background: var(--goa-sun-yellow);
+  color: var(--goa-outline-black);
+  border: 1.5px solid var(--ink-black);
+  border-radius: 4px;
+  letter-spacing: 1px;
+  display: inline-block;
+  margin-bottom: 4px;
+  box-shadow: 2px 2px 0 var(--ink-black);
+}
+
+.sectionTitle {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  line-height: 1.2;
+  color: var(--goa-sand-white);
+}
+
+.stepDesc {
+  font-size: 13px;
+  color: #D6EADF;
+  line-height: 1.5;
+  background: var(--goa-card-inner);
+  padding: 12px 16px;
+  border: 1.5px solid #095932;
+  border-radius: var(--radius-sm);
+}
+
+.footer {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 20px;
+  border-top: 1.5px solid var(--border-color);
+  margin-top: 8px;
+}
+
+@media (max-width: 960px) {
+  .gridContainer {
+    grid-template-columns: 1fr;
+  }
+}

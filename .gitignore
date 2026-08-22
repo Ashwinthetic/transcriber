@@ -60,19 +60,23 @@ data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+data/results_extracted/
 *.csv
 *.jsonl
 *.parquet
 *.tsv
 *.tar.gz
 *.zip
-*.bin
+# FAISS / Vector Index & Vector DB Folders (Tracked for GitHub)
+!*.index
+!*.bin
+!*.faiss
+!knowledge_base/
+!vector_store/
+!faiss_index/
 
-# FAISS / Vector Index Files
-*.index
-*.faiss
-vector_store/
-faiss_index/
+# Exclude Assamese vector store / dataset
+knowledge_base/as/
 
 # ------------------------------------------
 # Node / Frontend (React + Vite)

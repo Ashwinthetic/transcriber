@@ -1,0 +1,82 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.headerLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stratBadge {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  background: var(--parchment);
+  border: 2px solid var(--ink-black);
+  border-radius: 6px;
+  color: var(--chili-red);
+  text-transform: lowercase;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.chunkItem {
+  background: var(--parchment);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  transition: border-color 0.15s ease;
+}
+
+.chunkItem:hover {
+  border-color: var(--chili-red);
+}
+
+.chunkMeta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.chunkTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--chili-red);
+}
+
+.chunkScore {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--forest-green);
+}
+
+.chunkText {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.empty {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
