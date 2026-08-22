@@ -50,8 +50,7 @@ def get_stt_inst() -> SpeechToTextService:
 
 def get_llm_inst() -> LLMHarness:
     global llm_harness
-    if llm_harness is None:
-        llm_harness = LLMHarness()
+    llm_harness = LLMHarness()
     return llm_harness
 
 

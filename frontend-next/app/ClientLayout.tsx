@@ -17,7 +17,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   return (
     <ReactLenis root options={{ lerp: 0.08, duration: 1.2, smoothWheel: true }}>
       {!introComplete && (
-        <MatchboxIntro onComplete={() => setIntroComplete(true)} />
+        <MatchboxIntro onCompleteAction={() => setIntroComplete(true)} />
       )}
 
       <div

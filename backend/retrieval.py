@@ -57,9 +57,15 @@ class FAISSRetriever:
             print("ℹ️ No knowledge_base/ directory found, skipping KB loading.")
             return
 
+        target_env = os.getenv("ENABLED_KNOWLEDGE_BASES", "hn").strip()
+        target_kbs = [k.strip() for k in target_env.split(",") if k.strip()] if target_env != "all" else None
+
         for lang_dir in os.listdir(kb_root):
             lang_path = os.path.join(kb_root, lang_dir)
             if not os.path.isdir(lang_path):
+                continue
+
+            if target_kbs and lang_dir not in target_kbs:
                 continue
 
             config_path = os.path.join(lang_path, "config.json")
@@ -108,7 +114,7 @@ class FAISSRetriever:
                 print(f"❌ Failed to load KB '{lang_dir}': {e}")
 
         if self.kb_indexes:
-            print(f"🗂️ Total knowledge bases loaded: {len(self.kb_indexes)} ({', '.join(self.kb_indexes.keys())})")
+            print(f"🗂️ Total knowledge bases loaded: {len(self.kb_indexes)} ({', '.join(self.kb_indexes.keys())}) [Filter: {target_env}]")
         else:
             print("ℹ️ No knowledge base indexes were loaded.")
 
@@ -307,7 +313,7 @@ class FAISSRetriever:
         for idx, rrf_score in sorted_rrf:
             if idx < len(chunks):
                 chunk_info = dict(chunks[idx])
-                chunk_info["rrf_score"] = float(rrf_score)
+                chunk_info["rrf_score"] = rrf_score
                 # Compute raw similarity score
                 sim = float(np.dot(query_embedding[0], idx_data["embeddings"][idx]))
                 chunk_info["similarity_score"] = sim
@@ -323,4 +329,5 @@ if __name__ == "__main__":
     results, latency = retriever.retrieve("What are the advantages of solar energy?", strategy="fixed_size", top_k=2)
     print(f"⚡ Retrieval Latency: {latency:.2f} ms")
     for r in results:
-        print(f"- [{r.get('strategy')}] (score: {r.get('similarity_score', 0):.4f}) {r.get('text')[:100]}...")
+        text = r.get('text') or ''
+        print(f"- [{r.get('strategy')}] (score: {r.get('similarity_score', 0):.4f}) {text[:100]}...")
