@@ -13,7 +13,7 @@ if sys.stdout and hasattr(sys.stdout, 'reconfigure'):
 class RAGGuardrails:
     """Guardrails Engine ensuring Safety, Off-topic Filtering, and Answer Grounding."""
 
-    GROUNDING_THRESHOLD = 0.05
+    GROUNDING_THRESHOLD = 0.40
     UNSAFE_PATTERNS = [
         r"\bmalware\b", r"\bhack\b", r"\bexploit\b", r"\bvirus\b", r"\bbomb\b",
         r"\battack\b", r"\bprompt injection\b", r"\bignore previous instructions\b"

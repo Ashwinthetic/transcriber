@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 
-export default function MatchboxIntro({ onComplete }: { onComplete: () => void }) {
+export default function MatchboxIntro({ onCompleteAction }: { onCompleteAction: () => void }) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
@@ -14,7 +14,7 @@ export default function MatchboxIntro({ onComplete }: { onComplete: () => void }
     const tl = gsap.timeline({
       onComplete: () => {
         setVisible(false);
-        onComplete();
+        onCompleteAction();
       },
     });
 
@@ -49,7 +49,7 @@ export default function MatchboxIntro({ onComplete }: { onComplete: () => void }
         },
         "-=0.3"
       );
-  }, [onComplete]);
+  }, [onCompleteAction]);
 
   if (!visible) return null;
 
