@@ -26,12 +26,26 @@ class LLMHarness:
     def _fast_grounded_synthesis(self, query: str, retrieved_chunks: List[Dict[str, Any]]) -> str:
         """Sub-5ms local grounded answer extraction and synthesis engine."""
         if not retrieved_chunks:
+            # Check if query is Hindi
+            is_hindi = any('\u0900' <= char <= '\u097F' for char in query)
+            if is_hindi:
+                return f"प्रदान किए गए नॉलेज बेस में '{query}' के लिए कोई प्रासंगिक संदर्भ नहीं मिला।"
             return f"No relevant context found in MSMARCO knowledge base for '{query}'."
 
         # Take the top retrieved chunk
         top_chunk = retrieved_chunks[0]
         text = top_chunk.get("text", "").strip()
-        title = top_chunk.get("title", "")
+
+        # For KB-sourced passages, return the text directly (already formatted)
+        if top_chunk.get("source") == "knowledge_base":
+            score = top_chunk.get("similarity_score", 0.0)
+            vec_id = top_chunk.get("vector_id", "?")
+            lang = top_chunk.get("lang", "hi")
+            return (
+                f"Retrieved from MSMARCO-XI {lang.upper()} knowledge base "
+                f"(passage #{vec_id}, similarity: {score:.4f}). "
+                f"{text}"
+            )
 
         # Clean text into sentences
         sentences = [s.strip() for s in text.replace("\n", " ").split(".") if len(s.strip()) > 10]
@@ -51,7 +65,7 @@ class LLMHarness:
                 best_overlap = overlap
                 best_sentence = sent
 
-        # Build clean grounded response
+        # Build clean grounded response (concise 1-2 sentences)
         if len(sentences) > 1 and best_sentence != sentences[0]:
             answer = f"{best_sentence}. {sentences[0]}."
         elif len(sentences) > 1:
@@ -90,19 +104,16 @@ class LLMHarness:
         ])
 
         system_prompt = (
-            "You are Transcriber AI, an expert Voice-Enabled RAG model powered by Ollama Nemotron 3 Ultra.\n"
-            "Instructions:\n"
-            "1. Answer the user's question directly, accurately, concisely (1-2 sentences max).\n"
-            "2. ALWAYS match the user's language EXACTLY.\n"
-            "3. Use facts from retrieved context."
+            "You are Transcriber AI. Answer the user's question in 1-2 sentences max using ONLY the provided context. "
+            "Match the user's language exactly."
         )
 
-        user_prompt = f"User Question: {query}\n\nRetrieved Context:\n{context_str}\n\nAnswer concisely:"
+        user_prompt = f"Question: {query}\n\nContext:\n{context_str}\n\nAnswer:"
 
         # 1. Groq API (Ultra-Fast Cloud LLM ~80-150ms)
         if self.groq_key:
             try:
-                async with httpx.AsyncClient(timeout=2.0) as client:
+                async with httpx.AsyncClient(timeout=1.5) as client:
                     resp = await client.post(
                         "https://api.groq.com/openai/v1/chat/completions",
                         headers={
@@ -116,7 +127,7 @@ class LLMHarness:
                                 {"role": "user", "content": user_prompt}
                             ],
                             "temperature": 0.1,
-                            "max_tokens": 100
+                            "max_tokens": 60
                         }
                     )
                     if resp.status_code == 200:
@@ -137,7 +148,7 @@ class LLMHarness:
         # 2. Attempt Ollama Cloud API with strict 1.5s timeout for fast response
         if self.ollama_key:
             try:
-                async with httpx.AsyncClient(timeout=2.0) as client:
+                async with httpx.AsyncClient(timeout=1.5) as client:
                     resp = await client.post(
                         "https://ollama.com/v1/chat/completions",
                         headers={
@@ -151,7 +162,7 @@ class LLMHarness:
                                 {"role": "user", "content": user_prompt}
                             ],
                             "temperature": 0.1,
-                            "max_tokens": 80
+                            "max_tokens": 60
                         }
                     )
                     if resp.status_code == 200:
