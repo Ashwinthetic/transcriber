@@ -269,6 +269,27 @@ def get_benchmark_summary():
     }
 
 
+@app.get("/api/knowledge-bases")
+def get_knowledge_bases():
+    """Returns info about loaded knowledge base FAISS indexes from knowledge_base/ directory."""
+    ret_engine = get_retriever_inst()
+    kb_list = []
+    for kb_key, kb_data in ret_engine.kb_indexes.items():
+        kb_list.append({
+            "id": kb_key,
+            "lang_code": kb_data.get("lang_code", kb_key),
+            "total_vectors": kb_data.get("total_vectors", 0),
+            "dimension": kb_data.get("dimension", 0),
+            "index_type": kb_data.get("index_type", "IVFPQ"),
+            "embedding_model": kb_data.get("embedding_model", "unknown"),
+            "dataset": kb_data.get("dataset", "unknown"),
+        })
+    return {
+        "knowledge_bases": kb_list,
+        "total_loaded": len(kb_list),
+    }
+
+
 # Serve Frontend Web App
 frontend_dir = os.path.join(os.path.dirname(__file__), "..", "frontend")
 if os.path.exists(frontend_dir):

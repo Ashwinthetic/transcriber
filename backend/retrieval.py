@@ -32,8 +32,65 @@ class FAISSRetriever:
         
         # Pre-built indexes per strategy
         self.strategy_indexes: Dict[str, Dict[str, Any]] = {}
+        # Knowledge base indexes keyed by language code
+        self.kb_indexes: Dict[str, Dict[str, Any]] = {}
         self.active_strategy = "sentence_based"
         self._build_indexes()
+        self._load_knowledge_bases()
+
+    def _load_knowledge_bases(self):
+        """Loads pre-built FAISS IVFPQ indexes from the knowledge_base/ directory."""
+        kb_root = os.path.join(os.path.dirname(__file__), "..", "knowledge_base")
+        if not os.path.exists(kb_root):
+            print("ℹ️ No knowledge_base/ directory found, skipping KB loading.")
+            return
+
+        for lang_dir in os.listdir(kb_root):
+            lang_path = os.path.join(kb_root, lang_dir)
+            if not os.path.isdir(lang_path):
+                continue
+
+            config_path = os.path.join(lang_path, "config.json")
+            index_path = os.path.join(lang_path, "faiss_ivfpq.index")
+
+            if not os.path.exists(index_path):
+                print(f"⚠️ KB '{lang_dir}': No faiss_ivfpq.index found, skipping.")
+                continue
+
+            try:
+                import json
+                config = {}
+                if os.path.exists(config_path):
+                    with open(config_path, "r", encoding="utf-8") as f:
+                        config = json.load(f)
+
+                print(f"📦 Loading knowledge base '{lang_dir}' FAISS index from {index_path}...")
+                kb_faiss_index = faiss.read_index(index_path)
+                lang_code = config.get("language", lang_dir)
+
+                self.kb_indexes[lang_dir] = {
+                    "faiss_index": kb_faiss_index,
+                    "config": config,
+                    "lang_code": lang_code,
+                    "total_vectors": kb_faiss_index.ntotal,
+                    "dimension": kb_faiss_index.d,
+                    "index_type": config.get("index", "IVFPQ"),
+                    "embedding_model": config.get("embedding_model", "intfloat/multilingual-e5-small"),
+                    "dataset": config.get("dataset", "ai4bharat/MSMARCO-XI"),
+                }
+
+                print(
+                    f"✅ KB '{lang_dir}' loaded: {kb_faiss_index.ntotal} vectors, "
+                    f"dim={kb_faiss_index.d}, lang={lang_code}, "
+                    f"model={config.get('embedding_model', 'unknown')}"
+                )
+            except Exception as e:
+                print(f"❌ Failed to load KB '{lang_dir}': {e}")
+
+        if self.kb_indexes:
+            print(f"🗂️ Total knowledge bases loaded: {len(self.kb_indexes)} ({', '.join(self.kb_indexes.keys())})")
+        else:
+            print("ℹ️ No knowledge base indexes were loaded.")
 
     def _build_indexes(self):
         """Pre-computes and pre-warms vector indexes for all 4 chunking strategies, loading Kaggle index if available."""
