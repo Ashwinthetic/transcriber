@@ -13,7 +13,7 @@ export function TopBar() {
       <div className="flex items-center gap-3">
         <h1 className="text-xl font-bold font-heading text-white flex items-center gap-2">
           Speech to Text
-          <Image src="/assets/hhgoa/036-vector-54-3934.svg" alt="Decorative Vector" width={24} height={24} className="opacity-80 mix-blend-multiply" />
+          <Image src="/assets/hhgoa/036-vector-54-3934.svg" alt="Decorative Vector" width={32} height={32} className="drop-shadow-[0_0_12px_rgba(255,223,0,1)] brightness-[1.4]" />
         </h1>
         <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-[11px] font-semibold text-white">
           <Sparkles className="w-3 h-3 text-[#FF6B00]" />
