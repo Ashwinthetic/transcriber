@@ -42,8 +42,8 @@ class LLMHarness:
         self._cache: Dict[str, Tuple[Dict[str, Any], float]] = {}
         self._max_cache_size = int(os.getenv("LLM_CACHE_MAX_ENTRIES", "256"))
 
-        # Retry / timeout configuration
-        self.default_timeout = float(os.getenv("LLM_TIMEOUT_SECONDS", "45.0"))
+        # Retry / timeout configuration (4.0s max timeout for fast voice response)
+        self.default_timeout = float(os.getenv("LLM_TIMEOUT_SECONDS", "4.0"))
         self.max_retries = int(os.getenv("LLM_MAX_RETRIES", "2"))
         self.retry_backoff = float(os.getenv("LLM_RETRY_BACKOFF", "0.5"))
         self.warm = False
@@ -289,10 +289,10 @@ class LLMHarness:
                             "model": self.ollama_model,
                             "messages": self._build_messages(query, retrieved_chunks),
                             "temperature": 0.0,
-                            "max_tokens": 60
+                            "max_tokens": 40
                         }
                     else:
-                        # Local Ollama: use /api/generate with prompt format
+                        # Local Ollama: use /api/generate with prompt format & fast context options
                         prompt = self._build_prompt(query, retrieved_chunks)
                         payload = {
                             "model": self.ollama_model,
@@ -300,7 +300,8 @@ class LLMHarness:
                             "stream": False,
                             "options": {
                                 "temperature": 0.0,
-                                "num_predict": 60
+                                "num_predict": 35,
+                                "num_ctx": 384
                             }
                         }
 
