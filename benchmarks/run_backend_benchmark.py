@@ -51,6 +51,21 @@ def main():
     queries = collect_queries(NUM_QUERIES)
     print(f"collected {len(queries)} real dataset queries from passage store")
 
+    progress_path = os.path.join(os.path.dirname(__file__), "..", "data", "source", "bench_progress.jsonl")
+    done = {}
+    if os.path.exists(progress_path) and os.getenv("BENCH_RESUME", "1") not in ("0", "false"):
+        with open(progress_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        rec = json.loads(line)
+                        done[rec["i"]] = rec
+                    except Exception:
+                        pass
+        print(f"resume: found {len(done)} previously completed queries")
+    progress_file = open(progress_path, "a", encoding="utf-8")
+
     comp_keys = ["stt_ms", "embedding_ms", "faiss_ms", "record_lookup_ms", "chunking_ms", "ollama_ms", "guardrails_ms"]
     series = {k: [] for k in comp_keys}
     series["total_backend_ms"] = []
@@ -62,6 +77,18 @@ def main():
 
     client = httpx.Client(timeout=170.0)
     for i, q in enumerate(queries):
+        idx = i + 1
+        if idx in done:
+            rec = done[idx]
+            records.append(rec)
+            lat = rec.get("latencies", {})
+            for k in comp_keys:
+                series[k].append(float(lat.get(k, 0.0)))
+            series["total_backend_ms"].append(float(rec.get("total_backend_ms", 0.0)))
+            series["wall_ms"].append(float(rec.get("wall_ms", 0.0)))
+            prov = rec.get("provider") or "none"
+            providers[prov] = providers.get(prov, 0) + 1
+            continue
         payload = {"query": q, "lang": "hn", "strategy": STRATEGY, "top_k": TOP_K}
         try:
             w0 = time.perf_counter()
@@ -76,18 +103,23 @@ def main():
             series["wall_ms"].append(wall)
             prov = d.get("llm_provider") or "none"
             providers[prov] = providers.get(prov, 0) + 1
-            records.append({
-                "i": i + 1,
+            record = {
+                "i": idx,
                 "query": q,
                 "provider": prov,
                 "grounded": d.get("grounded"),
                 "total_backend_ms": round(d.get("total_latency_ms", 0.0), 1),
+                "wall_ms": round(wall, 1),
                 "latencies": d.get("latencies", {}),
-            })
-            print(f"[{i+1}/{len(queries)}] total={d.get('total_latency_ms', 0):.0f}ms ollama={lat.get('ollama_ms', 0):.0f}ms faiss={lat.get('faiss_ms', 0):.1f}ms lookup={lat.get('record_lookup_ms', 0):.1f}ms prov={prov}")
+            }
+            records.append(record)
+            progress_file.write(json.dumps(record, ensure_ascii=False) + "\n")
+            progress_file.flush()
+            print(f"[{idx}/{len(queries)}] total={d.get('total_latency_ms', 0):.0f}ms ollama={lat.get('ollama_ms', 0):.0f}ms faiss={lat.get('faiss_ms', 0):.1f}ms lookup={lat.get('record_lookup_ms', 0):.1f}ms prov={prov}")
         except Exception as e:
-            failures.append({"i": i + 1, "query": q, "error": str(e)[:160]})
-            print(f"[{i+1}/{len(queries)}] FAILURE: {str(e)[:120]}")
+            failures.append({"i": idx, "query": q, "error": str(e)[:160]})
+            print(f"[{idx}/{len(queries)}] FAILURE: {str(e)[:120]}")
+    progress_file.close()
 
     under_200 = sum(1 for v in series["total_backend_ms"] if v <= 200.0)
     n_ok = len(series["total_backend_ms"])

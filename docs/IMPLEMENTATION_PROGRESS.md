@@ -113,6 +113,8 @@ wrong-language KB→honest refusal; bad strategy→default fallback. All passed.
 
 ## 13. Public testing URLs (temporary dev tunnels)
 
+- Backend canonical port during this phase: **8020** (8000 was contended by a
+  second agent session killing/rebinding it repeatedly)
 - Backend (FastAPI :8020):
   - https://great-moose-enter.loca.lt   [VERIFIED working; browser shows a
     one-click interstitial first; API clients add header
@@ -120,9 +122,9 @@ wrong-language KB→honest refusal; bad strategy→default fallback. All passed.
   - https://stolen-conducting-castle-cellular.trycloudflare.com [registered;
     could not be DNS-resolved from THIS machine's network — try from your
     browser]
-- Frontend (Next.js dev :3000): started; proxies /api/* via BACKEND_ORIGIN
-  (default http://127.0.0.1:8020)
-- Start/stop commands + env vars: see section "Runbook" below
+- Frontend (Next.js dev :3000): VERIFIED proxying /api/* → :8020
+  (BACKEND_ORIGIN env overrides; default http://127.0.0.1:8020)
+- Start/stop commands + env vars: see Runbook below
 
 ### Runbook
 
@@ -150,18 +152,41 @@ failure rate, providers seen. Results: benchmarks/results_pipeline.json.
 
 ## 15. P50/P70/P100 results
 
-Benchmark run in progress at time of writing — final numbers will be pasted
-here verbatim from results_pipeline.json immediately after completion.
-(Interim observed per-query totals: 3.0–5.3 s, dominated by ollama_ms.)
+MEASURED — 2026-08-23, benchmarks/results_pipeline.json
+Configuration: 110 REAL Hindi dataset queries from passage store · typed text
+(STT excluded, reported separately when voice used) · sequential HTTP POSTs to
+running uvicorn :8020 · strategy=sentence_based · top_k=3 · LLM = REAL local
+Ollama llama3.2:1b (pinned via process env OLLAMA_MODEL during the run after a
+concurrent session changed .env mid-benchmark) · provider seen in 110/110
+responses: `ollama_local` (zero fast_grounded fallbacks in results).
+
+| Component (ms)   | P50      | P70      | P100      | avg       |
+|------------------|----------|----------|-----------|-----------|
+| embedding        | 57.86    | 79.14    | 630.22    | 79.35     |
+| faiss            | 1.52     | 1.86     | 10.46     | 1.80      |
+| record_lookup    | 109.70   | 116.32   | 2,069.41  | 150.45    |
+| chunking         | 0.15     | 0.17     | 1.04      | 0.18      |
+| ollama           | 3,605.73 | 8,484.12 | 11,054.02 | 5,453.34  |
+| guardrails       | 0.22     | 0.25     | 2.78      | 0.29      |
+| **total backend**| **3,899.70** | **8,668.83** | **13,755.23** | 5,685.54 |
+
+- under_200ms: **0 / 110 (0%)** — WITH the required real LLM step
+- Non-LLM path (embed+faiss+lookup+chunk+guardrails) sums to ≈170 ms at P50
+- Failures during collection: several transient connection-refused events
+  caused by an external process repeatedly killing the server port owner;
+  affected queries were re-run via checkpoint/resume until 110/110 valid.
+  The record_lookup P100=2069ms outlier occurred on the request immediately
+  after one such restart (cold page cache under RAM pressure).
 
 Old Kaggle retrieval-only reference (NOT end-to-end): P50 10.08 / P70 10.45 /
 P100 59.83 ms.
 
-**Honest expectation vs <200 ms target:** every non-LLM component combined is
-~30–140 ms warm; the REAL local CPU LLM adds seconds. The end-to-end pipeline
-with real Ollama generation cannot meet <200 ms on this hardware. Removing or
-replacing the LLM would violate the task rules, so the report states the
-bottleneck plainly instead of gaming the numbers.
+**Honest verdict on the <200 ms target:** every non-LLM component combined is
+~170 ms at P50 on this RAM-starved machine (≈35 ms warm). The REAL local CPU
+Ollama step adds seconds and cannot meet 200 ms here. Per task rules the LLM
+was not faked or removed; the bottleneck is stated plainly. Meeting 200 ms
+end-to-end requires a faster LLM tier (GPU-hosted model, smaller/quantized
+model, or streaming-first-token UX) — a hosting-phase decision.
 
 ## 16. Bugs found
 
