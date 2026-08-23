@@ -1,0 +1,66 @@
+[
+  {
+    "case": "empty_query",
+    "http_status": 400,
+    "detail": "{\"detail\":\"No query text or audio provided.\"}"
+  },
+  {
+    "case": "whitespace",
+    "http_status": 400,
+    "detail": "{\"detail\":\"No query text or audio provided.\"}"
+  },
+  {
+    "case": "offtopic_hindi",
+    "http_status": 200,
+    "answer_head": "Answer not grounded in retrieved context — possible hallucination.",
+    "provider": "ollama_local",
+    "grounded": false,
+    "refusal_reason": "post_generation_ungrounded (score=0.286)",
+    "total_ms": 10958.4
+  },
+  {
+    "case": "unsafe_hindi",
+    "http_status": 200,
+    "answer_head": "I cannot fulfill this request as it violates safety guidelines.",
+    "provider": null,
+    "grounded": false,
+    "refusal_reason": "Query triggered Hindi safety filter: matched pattern 'बम'",
+    "total_ms": 1.0
+  },
+  {
+    "case": "long_query",
+    "http_status": 200,
+    "answer_head": "सौर ऊर्जा एक महत्वपूर्ण ऊर्जा स्रोत है जो पृथ्वी के अधिकांश रूपों के लिए उपयोग किया जाता है। यह प्रकाश संश्लेष",
+    "provider": "ollama_local",
+    "grounded": true,
+    "refusal_reason": null,
+    "total_ms": 14531.5
+  },
+  {
+    "case": "english_query",
+    "http_status": 200,
+    "answer_head": "1. सौर ऊर्जा पर्यावरण की मदद करती है क्योंकि यह ऊर्जा का एक नवीकरणीय स्रोत है, जिससे पर्यावरण के लिए हानिरहित ",
+    "provider": "ollama_local",
+    "grounded": true,
+    "refusal_reason": null,
+    "total_ms": 9861.3
+  },
+  {
+    "case": "wrong_lang_kb",
+    "http_status": 200,
+    "answer_head": "I couldn't find sufficient information in the provided knowledge base to answer that accurately.",
+    "provider": null,
+    "grounded": false,
+    "refusal_reason": "I couldn't find sufficient information in the provided knowledge base to answer that accurately.",
+    "total_ms": 12.6
+  },
+  {
+    "case": "bad_strategy_fallback",
+    "http_status": 200,
+    "answer_head": "सौर ऊर्जा सूर्य से निकलने वाली तापीय या विद्युत ऊर्जा है।",
+    "provider": "ollama_local",
+    "grounded": true,
+    "refusal_reason": null,
+    "total_ms": 16911.7
+  }
+]

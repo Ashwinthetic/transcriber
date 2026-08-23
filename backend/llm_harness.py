@@ -14,273 +14,388 @@ if sys.stdout and hasattr(sys.stdout, 'reconfigure'):
 
 
 class LLMHarness:
-    """Real-Ollama-first grounded generation harness.
-
-    Production path (normal /api/query traffic):
-        retrieved context -> configured OLLAMA_MODEL via Ollama
-        (local daemon preferred, else Ollama Cloud) -> generated answer
-
-    fast_grounded synthesis exists ONLY as failure fallback and is always
-    flagged provider='fast_grounded_fallback' so it can never masquerade as a
-    real LLM response.
-    """
-
-    SYSTEM_PROMPT = (
-        "You are Transcriber AI, a grounded Voice RAG assistant for MSMARCO-XI knowledge bases.\n"
-        "Rules:\n"
-        "1. Answer strictly using facts contained in the Retrieved Context.\n"
-        "2. If the context is insufficient, say clearly that the knowledge base does not contain the answer. Never invent facts.\n"
-        "3. Reply in the SAME language as the user question (e.g. Hindi question -> Hindi answer).\n"
-        "4. Keep the answer concise: 1-3 short sentences."
-    )
+    """Orchestrated LLM Harness supporting Ollama (local/cloud), Groq, Sarvam AI,
+    and fast grounded fallback — with retries, timeouts, structured I/O, and fallback."""
 
     def __init__(self):
-        self.model = os.getenv("OLLAMA_MODEL", "").strip()
-        self.api_key = os.getenv("OLLAMA_API_KEY", "").strip()
-        self.base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").strip().rstrip("/")
-        self.cloud_base_url = os.getenv("OLLAMA_CLOUD_BASE_URL", "https://ollama.com/v1").strip().rstrip("/")
-        self.timeout_seconds = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "30"))
-        self.max_retries = int(os.getenv("OLLAMA_MAX_RETRIES", "2"))
-        self.retry_backoff = float(os.getenv("OLLAMA_RETRY_BACKOFF", "0.4"))
-        self.keep_alive = os.getenv("OLLAMA_KEEP_ALIVE", "30m")
-        self.warm_enabled = os.getenv("OLLAMA_WARMUP", "1") not in ("0", "false", "False")
-        self.max_tokens = int(os.getenv("OLLAMA_MAX_TOKENS", "160"))
+        self.sarvam_key = os.getenv("SARVAM_API_KEY", "").strip()
+        self.nvidia_key = os.getenv("NVIDIA_API_KEY", "").strip()
+        self.ollama_key = os.getenv("OLLAMA_API_KEY", "").strip()
+        self.groq_key = os.getenv("GROQ_API_KEY", "").strip()
+        # Purge known-dead legacy keys BEFORE endpoint resolution so a stale
+        # OLLAMA_API_KEY can never route production traffic to unauthenticated
+        # Ollama Cloud instead of the configured local model.
+        if self.ollama_key and ("c368ff17" in self.ollama_key or "aJvma" in self.ollama_key):
+            self.ollama_key = ""
+        self.preferred_provider = os.getenv("LLM_PROVIDER", "ollama").lower()
+        self.ollama_model = os.getenv("OLLAMA_MODEL", "llama3.2:1b")
+        # Endpoint resolution order:
+        #   1. explicit OLLAMA_BASE_URL (respected verbatim)
+        #   2. Ollama Cloud when OLLAMA_API_KEY is present
+        #   3. local daemon http://localhost:11434
+        self.ollama_base_url = os.getenv("OLLAMA_BASE_URL", "").strip().rstrip("/")
+        if not self.ollama_base_url:
+            self.ollama_base_url = (
+                "https://ollama.com/v1" if self.ollama_key else "http://localhost:11434"
+            )
+        self._cache_enabled = os.getenv("LLM_CACHE_ENABLED", "0") not in ("0", "false", "False")
+        self._cache: Dict[str, Tuple[Dict[str, Any], float]] = {}
+        self._max_cache_size = int(os.getenv("LLM_CACHE_MAX_ENTRIES", "256"))
 
-        self._client: Optional[httpx.AsyncClient] = None
-        self.mode = "unresolved"
-        self.resolved_base = ""
-        self.last_error = ""
+        # Retry / timeout configuration
+        self.default_timeout = float(os.getenv("LLM_TIMEOUT_SECONDS", "45.0"))
+        self.max_retries = int(os.getenv("LLM_MAX_RETRIES", "2"))
+        self.retry_backoff = float(os.getenv("LLM_RETRY_BACKOFF", "0.5"))
         self.warm = False
 
-        if not self.model:
-            self.model = "nemotron-3-ultra"
+    def _cache_put(self, key: str, value: Tuple[Dict[str, Any], float]):
+        if not self._cache_enabled:
+            return
+        if len(self._cache) >= self._max_cache_size:
+            oldest = next(iter(self._cache))
+            self._cache.pop(oldest)
+        self._cache[key] = value
+
+    def _is_ollama_cloud(self) -> bool:
+        """Check if we're using Ollama Cloud API vs local Ollama."""
+        return bool(self.ollama_key) and "ollama.com" in self.ollama_base_url
+
+    def _get_ollama_url(self) -> str:
+        """Get the appropriate Ollama API endpoint."""
+        if self._is_ollama_cloud():
+            return "https://ollama.com/v1/chat/completions"
+        # Local Ollama: use /api/generate which works reliably
+        return f"{self.ollama_base_url}/api/generate"
+
+    def _get_ollama_headers(self) -> Dict[str, str]:
+        """Get headers for Ollama request."""
+        if self._is_ollama_cloud():
+            return {
+                "Authorization": f"Bearer {self.ollama_key}",
+                "Content-Type": "application/json"
+            }
+        return {"Content-Type": "application/json"}
+
+    def _build_prompt(self, query: str, retrieved_chunks: List[Dict[str, Any]]) -> str:
+        """Build a single prompt for LLM with retrieved context (for /api/generate)."""
+        context_parts = []
+        for c in retrieved_chunks:
+            doc_id = c.get("doc_id", "N/A")
+            title = c.get("title", "MSMARCO Document")
+            text = c.get("text", "").strip()
+            if text:
+                context_parts.append(f"--- Document Source [{doc_id}]: {title} ---\n{text}")
+        
+        context = "\n\n".join(context_parts) if context_parts else "No context available."
+        
+        system_prompt = (
+            "You are Transcriber AI, an expert Voice-Enabled RAG model.\n"
+            "1. Answer strictly using facts in Retrieved Context (1-2 short sentences max).\n"
+            "2. Do NOT invent, assume, or add outside facts.\n"
+            "3. MATCH user language exactly."
+        )
+        
+        user_prompt = f"User Question: {query}\n\nRetrieved Context:\n{context}\n\nAnswer:"
+        
+        return f"{system_prompt}\n\n{user_prompt}"
 
     # ------------------------------------------------------------ lifecycle
 
-    def _get_client(self) -> httpx.AsyncClient:
-        if self._client is None or self._client.is_closed:
-            headers = {}
-            if self.api_key and self.mode == "cloud":
-                headers["Authorization"] = f"Bearer {self.api_key}"
-            self._client = httpx.AsyncClient(
-                timeout=httpx.Timeout(self.timeout_seconds, connect=5.0),
-                limits=httpx.Limits(max_keepalive_connections=2),
-                headers=headers,
-            )
-        return self._client
-
     async def close(self):
-        if self._client is not None:
-            await self._client.aclose()
-            self._client = None
+        pass
 
-    async def resolve(self) -> str:
-        """Resolves the real Ollama endpoint once: local daemon first, cloud second."""
-        if not self.warm_enabled:
-            pass
-        else:
-            try:
-                client = self._get_client_for_resolution()
-                tags = await client.get(f"{self.base_url}/api/tags", timeout=3.0)
-                if tags.status_code == 200:
-                    names = [m.get("name", "") for m in tags.json().get("models", [])]
-                    if any(n == self.model or n.split(":")[0] == self.model.split(":")[0] for n in names):
-                        self.mode = "local"
-                        self.resolved_base = self.base_url
-                        return self.mode
-            except Exception as e:
-                self.last_error = f"local probe: {e}"
-
-        if self.api_key:
-            self.mode = "cloud"
-            self.resolved_base = self.cloud_base_url
-            return self.mode
-
-        self.mode = "unavailable"
-        return self.mode
-
-    def _get_client_for_resolution(self) -> httpx.AsyncClient:
-        self.mode = "probing_local"
-        return self._get_client()
+    async def resolve_mode(self) -> str:
+        """Returns 'ollama_cloud' | 'ollama_local' | 'unavailable'."""
+        if self._is_ollama_cloud():
+            return "ollama_cloud" if self.ollama_key else "unavailable"
+        try:
+            async with httpx.AsyncClient(timeout=3.0) as client:
+                r = await client.get(f"{self.ollama_base_url}/api/tags")
+            if r.status_code == 200:
+                names = [m.get("name", "") for m in r.json().get("models", [])]
+                base = self.ollama_model.split(":")[0]
+                if any(n == self.ollama_model or n.split(":")[0] == base for n in names):
+                    return "ollama_local"
+            return "unavailable_model_not_installed"
+        except Exception:
+            return "unavailable_local_daemon_down"
 
     async def warm_up(self) -> Dict[str, Any]:
-        """One-time warm ping so the first user request pays no cold-start cost."""
+        """One-time warm ping through the REAL production path so the first user
+        request pays no cold-start (DNS/TLS/model-load) cost."""
         t0 = time.perf_counter()
-        mode = await self.resolve()
-        info: Dict[str, Any] = {"mode": mode, "model": self.model}
-        if mode == "unavailable":
-            info["status"] = "no_real_llm_available_fallback_only"
-            info["detail"] = self.last_error
-            return info
+        mode = await self.resolve_mode()
+        info: Dict[str, Any] = {"mode": mode, "model": self.ollama_model, "endpoint": self._get_ollama_url()}
+        probe_query = "ping"
+        probe_chunks = [{"title": "warmup", "text": "warmup"}]
         try:
-            res, _lat = await self._ollama_chat(
-                query="warmup",
-                context_blocks=["warmup"],
-                max_tokens=1,
-            )
-            info["status"] = "warmed"
-            info["probe_answer"] = (res.get("answer", "") or "")[:40]
-            self.warm = True
+            url = self._get_ollama_url()
+            headers = self._get_ollama_headers()
+            if self._is_ollama_cloud():
+                payload = {
+                    "model": self.ollama_model,
+                    "messages": [{"role": "user", "content": "Reply with the single word: ready"}],
+                    "temperature": 0.0,
+                    "max_tokens": 4,
+                }
+            else:
+                payload = {
+                    "model": self.ollama_model,
+                    "prompt": "Reply with the single word: ready",
+                    "stream": False,
+                    "options": {"temperature": 0.0, "num_predict": 4},
+                }
+            async with httpx.AsyncClient(timeout=self.default_timeout) as client:
+                resp = await client.post(url, headers=headers, json=payload)
+            if resp.status_code == 200:
+                data = resp.json()
+                content = (
+                    data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                    if self._is_ollama_cloud() else data.get("response", "")
+                )
+                info["status"] = "warmed"
+                info["probe_reply"] = (content or "")[:30]
+                self.warm = True
+            else:
+                info["status"] = f"warmup_http_{resp.status_code}_fallback_ready"
+                info["detail"] = resp.text[:150]
         except Exception as e:
             info["status"] = "warmup_failed_fallback_ready"
-            info["detail"] = str(e)
-            self.last_error = str(e)
+            info["detail"] = str(e)[:200]
         info["warm_ms"] = round((time.perf_counter() - t0) * 1000.0, 1)
         return info
 
-    # ------------------------------------------------------------- inference
+    # ------------------------------------------------------------ synthesis
 
-    def _build_user_prompt(self, query: str, context_blocks: List[str]) -> str:
-        ctx = "\n\n".join(f"[{i+1}] {b}" for i, b in enumerate(context_blocks))
-        return f"User Question: {query}\n\nRetrieved Context:\n{ctx}\n\nAnswer:"
+    def _fast_grounded_synthesis(self, query: str, retrieved_chunks: List[Dict[str, Any]]) -> str:
+        """Sub-5ms local grounded answer extraction and synthesis engine (fallback only)."""
+        if not retrieved_chunks:
+            is_hindi = any('\u0900' <= char <= '\u097F' for char in query)
+            if is_hindi:
+                return f"प्रदान किए गए नॉलेज बेस में '{query}' के लिए कोई प्रासंगिक संदर्भ नहीं मिला।"
+            return f"No relevant context found in MSMARCO knowledge base for '{query}'."
 
-    async def _ollama_chat(
-        self,
-        query: str,
-        context_blocks: List[str],
-        max_tokens: Optional[int] = None,
-    ) -> Tuple[Dict[str, Any], float]:
-        client = self._get_client()
-        url = f"{self.resolved_base}/chat/completions"
-        payload = {
-            "model": self.model,
-            "messages": [
-                {"role": "system", "content": self.SYSTEM_PROMPT},
-                {"role": "user", "content": self._build_user_prompt(query, context_blocks)},
-            ],
-            "temperature": 0.0,
-            "max_tokens": max_tokens if max_tokens is not None else self.max_tokens,
-            "stream": False,
-        }
-        if self.mode == "local":
-            payload["keep_alive"] = self.keep_alive
-        t0 = time.perf_counter()
-        resp = await client.post(url, json=payload)
-        lat = (time.perf_counter() - t0) * 1000.0
-        if resp.status_code != 200:
-            raise RuntimeError(f"ollama http {resp.status_code}: {resp.text[:200]}")
-        data = resp.json()
-        content = (data.get("choices", [{}])[0].get("message", {}) or {}).get("content", "")
-        usage = data.get("usage", {}) or {}
-        return {
-            "answer": (content or "").strip(),
-            "usage": {
-                "prompt_tokens": usage.get("prompt_tokens"),
-                "completion_tokens": usage.get("completion_tokens"),
-            },
-        }, lat
+        top_chunk = retrieved_chunks[0]
+        text = top_chunk.get("text", "").strip()
+
+        if top_chunk.get("source") == "knowledge_base":
+            score = top_chunk.get("similarity_score", 0.0)
+            vec_id = top_chunk.get("vector_id", "?")
+            lang = top_chunk.get("lang", "hi")
+            return (
+                f"Retrieved from MSMARCO-XI {lang.upper()} knowledge base "
+                f"(passage #{vec_id}, similarity: {score:.4f}). "
+                f"{text}"
+            )
+
+        q_terms = [
+            w.strip("?,!.:;\"'()") for w in query.lower().split()
+            if w.strip("?,!.:;\"'()") and len(w.strip("?,!.:;\"'()")) > 1
+        ]
+        q_set = set(q_terms)
+
+        best_sentence = ""
+        best_overlap = 0
+        best_chunk_score = 0.0
+
+        for chunk in retrieved_chunks:
+            text = chunk.get("text", "").strip()
+            sim_score = chunk.get("similarity_score", 0.0)
+            if not text:
+                continue
+
+            sentences = [s.strip() for s in text.replace("\n", " ").split(".") if len(s.strip()) > 10]
+            for sent in sentences:
+                s_words = set(w.strip("?,!.:;\"'()").lower() for w in sent.split())
+                overlap = len(q_set.intersection(s_words)) if q_set else 0
+                if overlap > best_overlap or (overlap == best_overlap and sim_score > best_chunk_score and overlap > 0):
+                    best_overlap = overlap
+                    best_sentence = sent
+                    best_chunk_score = sim_score
+
+        if best_sentence and best_overlap > 0:
+            return f"{best_sentence}."
+
+        is_hindi = any('\u0900' <= char <= '\u097F' for char in query) or "kya" in query.lower() or "hai" in query.lower()
+        if is_hindi:
+            return "प्रदान किए गए नॉलेज बेस में इस प्रश्न का उत्तर देने के लिए पर्याप्त जानकारी नहीं मिली।"
+
+        if retrieved_chunks and retrieved_chunks[0].get("similarity_score", 0.0) >= 0.40:
+            first_text = retrieved_chunks[0].get("text", "").strip()
+            first_sent = first_text.split(".")[0].strip() if first_text else ""
+            if first_sent:
+                return f"{first_sent}."
+
+        return f"I couldn't find sufficient information in the knowledge base to answer '{query}' accurately."
+
+    # ------------------------------------------------------------ orchestration
 
     async def generate_answer(
         self,
         query: str,
         retrieved_chunks: List[Dict[str, Any]],
-        max_retries: Optional[int] = None,
+        max_retries: int = None
     ) -> Tuple[Dict[str, Any], float]:
-        """Generates the REAL answer through the configured Ollama model.
-
-        Returns ({answer, provider, model, ...}, latency_ms). Falls back to the
-        deterministic grounded extractor ONLY if every real attempt fails.
-        """
+        """Generates grounded answer with real Ollama, retries, timeouts, and fallback."""
         t_start = time.perf_counter()
-        retries = self.max_retries if max_retries is None else max_retries
-        context_blocks = []
-        for c in retrieved_chunks[:5]:
-            t = (c.get("text", "") or "").strip()
-            if t:
-                context_blocks.append(t[:1200])
+        if max_retries is None:
+            max_retries = self.max_retries
 
-        if self.mode == "unresolved":
-            await self.resolve()
+        cache_key = f"{query.strip().lower()}:{len(retrieved_chunks)}"
+        if self._cache_enabled and cache_key in self._cache:
+            res, cached_lat = self._cache[cache_key]
+            t_end = time.perf_counter()
+            return {**res, "cached": True}, (t_end - t_start) * 1000.0
+
+        effective_retries = max(0, max_retries)
+
+        # 0. Fast grounded fallback (only when explicitly requested or NO providers available)
+        has_local_ollama = bool(self.ollama_base_url) and not self._is_ollama_cloud()
+        has_any_provider = bool(self.groq_key) or bool(self.ollama_key) or has_local_ollama
+        
+        if self.preferred_provider in ["fast_grounded", "fast", "local_fast", "sub200ms"] or not has_any_provider:
+            answer = self._fast_grounded_synthesis(query, retrieved_chunks)
+            t_end = time.perf_counter()
+            lat_ms = (t_end - t_start) * 1000.0
+            result = {
+                "answer": answer,
+                "provider": "fast_grounded_fallback",
+                "model": "extractive-fallback",
+                "status": "fallback",
+                "fallback_reason": (
+                    "LLM_PROVIDER forced fast_grounded"
+                    if self.preferred_provider in ["fast_grounded", "fast", "local_fast", "sub200ms"]
+                    else "no LLM provider configured"
+                ),
+                "attempts": 1,
+                "grounded": True
+            }
+            self._cache_put(cache_key, (result, lat_ms))
+            return result, lat_ms
 
         attempts: List[Dict[str, Any]] = []
-        tries = retries + 1
-        last_err = ""
-        for attempt in range(1, tries + 1):
-            if self.mode == "unavailable":
-                break
-            try:
-                res, lat = await self._ollama_chat(query, context_blocks)
-                if res["answer"]:
-                    result = {
-                        "answer": res["answer"],
-                        "provider": f"ollama_{self.mode}",
-                        "model": self.model,
-                        "endpoint": self.resolved_base,
-                        "status": "success",
-                        "attempts": attempt,
-                        "grounded": True,
-                        "usage": res.get("usage"),
-                    }
-                    return result, (time.perf_counter() - t_start) * 1000.0
-                last_err = "empty completion"
-                attempts.append({"attempt": attempt, "error": last_err, "lat_ms": round(lat, 1)})
-            except Exception as e:
-                last_err = str(e)
-                attempts.append({"attempt": attempt, "error": last_err[:200]})
-                if attempt < tries:
-                    await asyncio.sleep(self.retry_backoff * attempt)
-                if "connect" in last_err.lower() and self.mode == "local":
-                    break
 
-        fb_answer, fb_meta = self._fast_grounded_fallback(query, retrieved_chunks)
-        total_lat = (time.perf_counter() - t_start) * 1000.0
+        # 1. Primary: Ollama (local or cloud)
+        if (self.ollama_key or has_local_ollama) and effective_retries > 0:
+            for attempt in range(1, effective_retries + 1):
+                attempt_start = time.perf_counter()
+                try:
+                    url = self._get_ollama_url()
+                    headers = self._get_ollama_headers()
+                    
+                    # Build request payload
+                    if self._is_ollama_cloud():
+                        payload = {
+                            "model": self.ollama_model,
+                            "messages": self._build_messages(query, retrieved_chunks),
+                            "temperature": 0.0,
+                            "max_tokens": 60
+                        }
+                    else:
+                        # Local Ollama: use /api/generate with prompt format
+                        prompt = self._build_prompt(query, retrieved_chunks)
+                        payload = {
+                            "model": self.ollama_model,
+                            "prompt": prompt,
+                            "stream": False,
+                            "options": {
+                                "temperature": 0.0,
+                                "num_predict": 60
+                            }
+                        }
+
+                    async with httpx.AsyncClient(timeout=self.default_timeout) as client:
+                        resp = await client.post(url, headers=headers, json=payload)
+                    
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        if self._is_ollama_cloud():
+                            content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                        else:
+                            content = data.get("response", "")
+                        
+                        lat = (time.perf_counter() - attempt_start) * 1000.0
+                        if content and content.strip():
+                            result = {
+                                "answer": content.strip(),
+                                "provider": "ollama_cloud" if self._is_ollama_cloud() else "ollama_local",
+                                "model": self.ollama_model,
+                                "status": "success",
+                                "attempts": attempt,
+                                "grounded": True
+                            }
+                            self._cache_put(cache_key, (result, lat))
+                            return result, lat
+                    
+                    attempts.append({"provider": "ollama", "status_code": resp.status_code, "lat_ms": (time.perf_counter() - attempt_start) * 1000.0})
+                except Exception as e:
+                    lat = (time.perf_counter() - attempt_start) * 1000.0
+                    attempts.append({"provider": "ollama", "error": str(e), "lat_ms": lat})
+
+        # 2. Secondary: Groq API (if configured)
+        if self.groq_key and effective_retries > 0:
+            for attempt in range(1, effective_retries + 1):
+                attempt_start = time.perf_counter()
+                try:
+                    async with httpx.AsyncClient(timeout=self.default_timeout) as client:
+                        resp = await client.post(
+                            "https://api.groq.com/openai/v1/chat/completions",
+                            headers={
+                                "Authorization": f"Bearer {self.groq_key}",
+                                "Content-Type": "application/json"
+                            },
+                            json={
+                                "model": "llama-3.1-8b-instant",
+                                "messages": self._build_messages(query, retrieved_chunks),
+                                "temperature": 0.0,
+                                "max_tokens": 60
+                            }
+                        )
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                        lat = (time.perf_counter() - attempt_start) * 1000.0
+                        if content and content.strip():
+                            result = {
+                                "answer": content.strip(),
+                                "provider": "groq_fast",
+                                "model": "llama-3.1-8b-instant",
+                                "status": "success",
+                                "attempts": attempt,
+                                "grounded": True
+                            }
+                            self._cache_put(cache_key, (result, lat))
+                            return result, lat
+                    attempts.append({"provider": "groq", "status_code": resp.status_code, "lat_ms": (time.perf_counter() - attempt_start) * 1000.0})
+                except Exception as e:
+                    lat = (time.perf_counter() - attempt_start) * 1000.0
+                    attempts.append({"provider": "groq", "error": str(e), "lat_ms": lat})
+
+        # 3. Fallback to fast grounded synthesis (ONLY after real attempts failed)
+        answer = self._fast_grounded_synthesis(query, retrieved_chunks)
+        t_end = time.perf_counter()
+        lat_ms = (time.perf_counter() - t_start) * 1000.0
+        last_err = ""
+        if attempts:
+            last_attempt = attempts[-1]
+            last_err = str(last_attempt.get("error") or f"http {last_attempt.get('status_code')}")
         result = {
-            "answer": fb_answer,
+            "answer": answer,
             "provider": "fast_grounded_fallback",
             "model": "extractive-fallback",
-            "endpoint": self.resolved_base,
             "status": "fallback",
-            "attempts": len(attempts) + 1,
-            "grounded": True,
-            "fallback_reason": last_err or self.last_error or "real LLM unavailable",
+            "fallback_reason": last_err or "real LLM unavailable",
+            "attempts": len(attempts),
             "attempts_detail": attempts,
-            **fb_meta,
+            "grounded": True
         }
-        return result, total_lat
-
-    # -------------------------------------------------------------- fallback
-
-    @staticmethod
-    def _fast_grounded_fallback(query: str, retrieved_chunks: List[Dict[str, Any]]) -> Tuple[str, Dict[str, Any]]:
-        """Extractive fallback used ONLY when the real LLM fails."""
-        meta: Dict[str, Any] = {}
-        if not retrieved_chunks:
-            is_hindi = any('\u0900' <= ch <= '\u097F' for ch in query)
-            if is_hindi:
-                return "प्रदान किए गए नॉलेज बेस में इस प्रश्न का उत्तर देने के लिए पर्याप्त जानकारी नहीं मिली।", meta
-            return "I couldn't find sufficient information in the knowledge base to answer accurately.", meta
-
-        top = retrieved_chunks[0]
-        text = (top.get("text", "") or "").strip()
-        q_terms = {w.strip("?,!.:;\"'()").lower() for w in query.split() if len(w.strip("?,!.:;\"'()")) > 1}
-        best_sent, best_overlap = "", 0
-        for chunk in retrieved_chunks:
-            ct = (chunk.get("text", "") or "")
-            for sent in ct.replace("\n", " ").split("."):
-                s = sent.strip()
-                if len(s) < 10:
-                    continue
-                s_words = {w.strip("?,!.:;\"'()").lower() for w in s.split()}
-                overlap = len(q_terms & s_words)
-                if overlap > best_overlap:
-                    best_overlap, best_sent = overlap, s
-        if best_sent and best_overlap > 0:
-            return f"{best_sent}.", {"fallback_mode": "extractive"}
-        is_hindi = any('\u0900' <= ch <= '\u097F' for ch in query)
-        if is_hindi:
-            return "प्रदान किए गए नॉलेज बेस में इस प्रश्न का उत्तर देने के लिए पर्याप्त जानकारी नहीं मिली।", {"fallback_mode": "refusal"}
-        return "I couldn't find sufficient information in the knowledge base to answer accurately.", {"fallback_mode": "refusal"}
+        self._cache_put(cache_key, (result, lat_ms))
+        return result, lat_ms
 
 
 if __name__ == "__main__":
-    async def _demo():
-        h = LLMHarness()
-        info = await h.warm_up()
-        print(json.dumps(info, ensure_ascii=False))
-        chunks = [{"text": "सौर ऊर्जा एक स्वच्छ ऊर्जा स्रोत है जो बिजली के बिलों को कम करता है।"}]
-        res, lat = await h.generate_answer("सौर ऊर्जा के क्या लाभ हैं?", chunks)
-        print(f"provider={res['provider']} model={res['model']} latency={lat:.0f}ms")
-        print("answer:", res["answer"][:200])
-        await h.close()
-
-    asyncio.run(_demo())
+    import asyncio
+    harness = LLMHarness()
+    mock_chunks = [{"title": "Solar Energy", "text": "Solar energy reduces carbon emissions and electricity costs by converting sunlight into power."}]
+    res, lat = asyncio.run(harness.generate_answer("What are solar energy benefits?", mock_chunks))
+    print(f"LLM Answer: '{res['answer']}' (Provider: {res['provider']} | Latency: {lat:.2f} ms | Attempts: {res['attempts']})")

@@ -1,0 +1,27 @@
+{
+  "kind": "compact_passage_store",
+  "kb": "hn",
+  "dataset": "ai4bharat/MSMARCO-XI",
+  "source_file": "train/hintrain.parquet",
+  "sha256_batch_integrity_verified": true,
+  "rows": 778638,
+  "row_group_size": 256,
+  "num_row_groups": 3075,
+  "columns": [
+    "local_id",
+    "query",
+    "answer",
+    "query_type",
+    "target_lang",
+    "translated_passages",
+    "is_selected"
+  ],
+  "store_bytes": 1491569455,
+  "store_mb": 1422.5,
+  "total_passages": 7769498,
+  "selected_passages": 513004,
+  "avg_passages_per_row": 9.978,
+  "avg_chars_per_row": 3397.3,
+  "scan_seconds": 38.9,
+  "built_at": "2026-08-23 20:59:07"
+}

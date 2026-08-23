@@ -177,7 +177,7 @@ async def run_pipeline_benchmark(
 
         # --- 3. FAISS Retrieval (embed + search + record lookup + chunking) ---
         t_ret_start = time.perf_counter()
-        chunks, ret_lat, comp = retriever2.retrieve_with_components(
+        chunks, ret_lat, comp = retriever2.retrieve_from_kb(
             query=q, strategy=strategy, top_k=3, lang=lang
         )
         embed_latencies.append(comp.get("embed", 0.0))

@@ -70,15 +70,27 @@ async def lifespan(app: FastAPI):
     print("🚀 Pre-warming RAG Engine components...")
     t_start = time.perf_counter()
     get_stt_inst()
-    get_llm_inst()
+    llm_engine = get_llm_inst()
     engine = get_retriever_inst()
     engine.warm_up()
+
+    llm_warm_info: Dict[str, Any] = {}
+    if os.getenv("LLM_WARMUP_ON_START", "1") not in ("0", "false"):
+        try:
+            llm_warm_info = await llm_engine.warm_up()
+        except Exception as e:
+            llm_warm_info = {"status": "warmup_error_fallback_ready", "detail": str(e)}
+        print(f"🧠 LLM warm-up: {llm_warm_info.get('status')} | mode={llm_warm_info.get('mode')} model={getattr(llm_engine, 'ollama_model', None) or getattr(llm_engine, 'model', None)}")
 
     t_end = time.perf_counter()
     kbs = ", ".join(engine.kb_indexes.keys()) if engine.kb_indexes else "none"
     print(f"✅ RAG Engine pre-warmed in {(t_end - t_start):.2f}s | knowledge bases: {kbs}")
     yield
     print("🛑 Server shutting down...")
+    try:
+        await llm_engine.close()
+    except Exception:
+        pass
 
 
 app = FastAPI(
@@ -131,6 +143,8 @@ class QueryResponse(BaseModel):
     total_latency_ms: float
     latency_target_met: bool = Field(description="True if total_latency_ms <= 200ms")
     lang: str = Field(default="hn", description="Knowledge base language used")
+    latencies: Dict[str, float] = Field(default_factory=dict, description="Per-component latency breakdown (ms): stt, embedding, faiss, record_lookup, chunking, ollama, guardrails, total")
+    retrieved_context: List[Dict[str, Any]] = Field(default_factory=list, description="Trimmed retrieved context chunks actually used for grounding")
 
 
 @app.post("/api/query", response_model=QueryResponse)
@@ -181,7 +195,17 @@ async def process_voice_rag_query(req: QueryRequest):
             backend_latency_ms=guard_lat,
             total_latency_ms=tot_lat,
             latency_target_met=(tot_lat <= 200.0),
-            lang=req.lang
+            lang=req.lang,
+            latencies={
+                "stt_ms": round(stt_lat, 2),
+                "embedding_ms": 0.0,
+                "faiss_ms": 0.0,
+                "record_lookup_ms": 0.0,
+                "chunking_ms": 0.0,
+                "ollama_ms": 0.0,
+                "guardrails_ms": round(guard_lat, 2),
+                "total_ms": round(tot_lat, 2),
+            },
         )
 
     # 3. Vector Retrieval phase — local FAISS IVF-PQ index (loaded once at startup)
@@ -223,7 +247,17 @@ async def process_voice_rag_query(req: QueryRequest):
             backend_latency_ms=backend_lat,
             total_latency_ms=tot_lat,
             latency_target_met=(tot_lat <= 200.0),
-            lang=req.lang
+            lang=req.lang,
+            latencies={
+                "stt_ms": round(stt_lat, 2),
+                "embedding_ms": round(comp.get("embed", 0.0), 2),
+                "faiss_ms": round(comp.get("search", 0.0), 2),
+                "record_lookup_ms": round(comp.get("lookup", 0.0), 2),
+                "chunking_ms": round(comp.get("chunk", 0.0), 2),
+                "ollama_ms": 0.0,
+                "guardrails_ms": round(guard_lat, 2),
+                "total_ms": round(tot_lat, 2),
+            },
         )
 
     # 5. LLM Harness Answer Generation phase
@@ -245,6 +279,18 @@ async def process_voice_rag_query(req: QueryRequest):
     if not answer_grounded:
         final_answer = ans_msg
         refusal_reason = f"post_generation_ungrounded (score={ans_score:.3f})"
+
+    retrieved_context = [
+        {
+            "text": (c.get("text", "") or "")[:500],
+            "similarity_score": round(float(c.get("similarity_score", 0.0)), 4),
+            "vector_id": c.get("vector_id"),
+            "doc_id": c.get("doc_id"),
+            "strategy": c.get("strategy"),
+            "lang": c.get("lang"),
+        }
+        for c in chunks[: req.top_k]
+    ]
 
     return QueryResponse(
         query=query_text,
@@ -268,7 +314,18 @@ async def process_voice_rag_query(req: QueryRequest):
         backend_latency_ms=backend_lat,
         total_latency_ms=tot_lat,
         latency_target_met=(tot_lat <= 200.0),
-        lang=req.lang
+        lang=req.lang,
+        latencies={
+            "stt_ms": round(stt_lat, 2),
+            "embedding_ms": round(comp.get("embed", 0.0), 2),
+            "faiss_ms": round(comp.get("search", 0.0), 2),
+            "record_lookup_ms": round(comp.get("lookup", 0.0), 2),
+            "chunking_ms": round(comp.get("chunk", 0.0), 2),
+            "ollama_ms": round(llm_lat, 2),
+            "guardrails_ms": round(guard_lat, 2),
+            "total_ms": round(tot_lat, 2),
+        },
+        retrieved_context=retrieved_context,
     )
 
 

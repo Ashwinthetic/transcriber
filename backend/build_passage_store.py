@@ -142,6 +142,9 @@ def main() -> None:
     for otbl in out_pf.iter_batches(batch_size=BATCH_ROWS, columns=["local_id","query","answer","query_type","target_lang","translated_passages","is_selected"]):
         d, _, _ = digest_batch(pa.Table.from_batches([otbl]))
         digests_out.append(d)
+    del out_pf
+    import gc
+    gc.collect()
     ok = digests_in == digests_out
     print(f"integrity check: {'PASS' if ok else 'FAIL'} ({len(digests_in)} batches)")
 
