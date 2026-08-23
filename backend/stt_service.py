@@ -16,7 +16,7 @@ class SpeechToTextService:
     """Speech-to-Text Integration Service supporting Sarvam AI (saaras:v3) and ElevenLabs."""
 
     def __init__(self):
-        self.sarvam_key = os.getenv("SARVAM_API_KEY", "sk_q088ks1i_rd3BjNC7Mteco4n2jILrP7NO").strip()
+        self.sarvam_key = os.getenv("SARVAM_API_KEY", "").strip()
         self.elevenlabs_key = os.getenv("ELEVENLABS_API_KEY", "").strip()
         self.sarvam_url = "https://api.sarvam.ai/speech-to-text"
         self.elevenlabs_url = "https://api.elevenlabs.io/v1/speech-to-text"
@@ -67,7 +67,7 @@ class SpeechToTextService:
                         # Fallback to sample prompt if empty audio
                         if not transcript and sample_prompt:
                             transcript = sample_prompt
-                            
+                        
                         return {
                             "transcript": transcript or "What are the advantages of solar energy?",
                             "provider": "sarvam_ai",
@@ -104,6 +104,7 @@ class SpeechToTextService:
                 print(f"ElevenLabs API warning: {e}")
 
         # Deterministic Speech Simulation for testing/benchmarking
+        # When no API keys are configured, fall back to simulated queries
         if sample_prompt:
             transcript = sample_prompt
         else:
