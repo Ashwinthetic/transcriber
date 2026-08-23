@@ -19,6 +19,7 @@ async def run_pipeline_benchmark(
     num_queries: int = 100,
     lang: str = "hn",
     use_live_llm: bool = False,
+    strategy: str = "sentence_based",
     sample_prompts: List[str] = None,
 ):
     """Runs an end-to-end pipeline benchmark measuring per-component latencies.
