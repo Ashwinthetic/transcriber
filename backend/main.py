@@ -2,11 +2,16 @@ import os
 import sys
 import time
 import base64
+import asyncio
 from typing import Optional, List, Dict, Any
 from contextlib import asynccontextmanager
 
 # Ensure project root is in sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+if sys.platform == "win32":
+    # psycopg async mode requires a selector event loop on Windows (kept for any app-data DB use)
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 if sys.stdout and hasattr(sys.stdout, 'reconfigure'):
     try:
@@ -28,7 +33,7 @@ from backend.stt_service import SpeechToTextService
 from backend.guardrails import RAGGuardrails
 from backend.llm_harness import LLMHarness
 
-# Global instances
+# Global instances — initialized ONCE at startup, reused for every request.
 retriever: Optional[FAISSRetriever] = None
 stt_service: Optional[SpeechToTextService] = None
 llm_harness: Optional[LLMHarness] = None
@@ -50,20 +55,28 @@ def get_stt_inst() -> SpeechToTextService:
 
 def get_llm_inst() -> LLMHarness:
     global llm_harness
-    llm_harness = LLMHarness()
+    if llm_harness is None:
+        llm_harness = LLMHarness()
     return llm_harness
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Pre-warms FAISS vector index, embedding model, and STT services on server startup."""
+    """Pre-warms the FAISS vector index, record store, embedding model and STT/LLM services.
+
+    All heavy artifacts load ONCE here; the request path only performs
+    embed -> FAISS search -> record lookup -> harness -> response.
+    """
     print("🚀 Pre-warming RAG Engine components...")
     t_start = time.perf_counter()
     get_stt_inst()
     get_llm_inst()
-    get_retriever_inst()
+    engine = get_retriever_inst()
+    engine.warm_up()
+
     t_end = time.perf_counter()
-    print(f"✅ RAG Engine pre-warmed successfully in {(t_end - t_start):.2f}s!")
+    kbs = ", ".join(engine.kb_indexes.keys()) if engine.kb_indexes else "none"
+    print(f"✅ RAG Engine pre-warmed in {(t_end - t_start):.2f}s | knowledge bases: {kbs}")
     yield
     print("🛑 Server shutting down...")
 
@@ -71,7 +84,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Voice RAG Query Engine",
     description="Sub-200ms Voice-Based RAG System grounded on MSMARCO-XI with Sarvam/ElevenLabs STT",
-    version="1.0.0",
+    version="2.0.0",
     lifespan=lifespan
 )
 
@@ -88,11 +101,11 @@ app.add_middleware(
 class QueryRequest(BaseModel):
     query: Optional[str] = Field(default=None, description="Text query if not using voice")
     audio_base64: Optional[str] = Field(default=None, description="Base64 encoded audio bytes")
-    strategy: str = Field(default="sentence_based", description="Chunking strategy: fixed_size | sentence_based | semantic | metadata_aware")
+    strategy: str = Field(default="sentence_based", description="Chunking strategy: passage_aware | fixed_size | sentence_based | semantic | metadata_aware")
     stt_provider: str = Field(default="sarvam", description="STT provider: sarvam | elevenlabs")
     top_k: int = Field(default=3, description="Number of context chunks to retrieve")
     sample_prompt: Optional[str] = Field(default=None, description="Fast test query string")
-    lang: str = Field(default="hn", description="Knowledge base language code: hn (Hindi) | bn | gn | or")
+    lang: str = Field(default="hn", description="Knowledge base language code: hn (Hindi) | gn (Gujarati) | ...")
 
 
 class QueryResponse(BaseModel):
@@ -103,21 +116,26 @@ class QueryResponse(BaseModel):
     grounded: bool
     grounding_score: float
     refusal_reason: Optional[str] = None
-    llm_provider: Optional[str] = "ollama_cloud"
-    llm_model: Optional[str] = "nemotron-3-ultra"
+    llm_provider: Optional[str] = None
+    llm_model: Optional[str] = None
+    retrieval_backend: str = Field(default="faiss_ivfpq", description="faiss_ivfpq | none")
     stt_latency_ms: float
     retrieval_latency_ms: float
     guardrail_latency_ms: float
     llm_latency_ms: float
+    embed_latency_ms: float = 0.0
+    vector_search_latency_ms: float = 0.0
+    record_lookup_latency_ms: float = 0.0
+    candidate_chunk_latency_ms: float = 0.0
     backend_latency_ms: float = Field(description="Backend-only latency (retrieval + guardrails + LLM), excludes STT")
     total_latency_ms: float
-    latency_target_met: bool = Field(description="True if backend_latency_ms <= 200ms (STT excluded)")
+    latency_target_met: bool = Field(description="True if total_latency_ms <= 200ms")
     lang: str = Field(default="hn", description="Knowledge base language used")
 
 
 @app.post("/api/query", response_model=QueryResponse)
 async def process_voice_rag_query(req: QueryRequest):
-    """Executes full end-to-end Voice RAG pipeline with sub-millisecond latency breakdown."""
+    """Executes full end-to-end Voice RAG pipeline with per-component latency breakdown."""
     t_total_start = time.perf_counter()
 
     stt_svc = get_stt_inst()
@@ -143,13 +161,10 @@ async def process_voice_rag_query(req: QueryRequest):
     # 2. Input Safety Guardrail phase
     t_guard_start = time.perf_counter()
     safe, safety_msg = RAGGuardrails.check_input_safety(query_text)
-    t_guard_end = time.perf_counter()
-    guard_lat = (t_guard_end - t_guard_start) * 1000.0
+    guard_lat = (time.perf_counter() - t_guard_start) * 1000.0
 
     if not safe:
-        t_total_end = time.perf_counter()
-        tot_lat = (t_total_end - t_total_start) * 1000.0
-        backend_lat = guard_lat  # Only guardrail ran
+        tot_lat = (time.perf_counter() - t_total_start) * 1000.0
         return QueryResponse(
             query=query_text,
             stt_provider=req.stt_provider,
@@ -158,35 +173,36 @@ async def process_voice_rag_query(req: QueryRequest):
             grounded=False,
             grounding_score=0.0,
             refusal_reason=safety_msg,
+            retrieval_backend="none",
             stt_latency_ms=stt_lat,
             retrieval_latency_ms=0.0,
             guardrail_latency_ms=guard_lat,
             llm_latency_ms=0.0,
-            backend_latency_ms=backend_lat,
+            backend_latency_ms=guard_lat,
             total_latency_ms=tot_lat,
-            latency_target_met=(backend_lat <= 200.0),
+            latency_target_met=(tot_lat <= 200.0),
             lang=req.lang
         )
 
-    # 3. FAISS Vector Retrieval phase (routes to Hindi KB if lang specified)
-    chunks, ret_lat = ret_engine.retrieve(
+    # 3. Vector Retrieval phase — local FAISS IVF-PQ index (loaded once at startup)
+    chunks, ret_lat, comp = ret_engine.retrieve_with_components(
         query=query_text,
         strategy=req.strategy,
         top_k=req.top_k,
-        hybrid=True,
         lang=req.lang
+    )
+    retrieval_backend = "faiss_ivfpq" if chunks else (
+        "faiss_ivfpq" if req.lang in ret_engine.kb_indexes else "none"
     )
 
     # 4. Context Groundedness Guardrail phase
     t_guard2_start = time.perf_counter()
     grounded, ground_score, ground_msg = RAGGuardrails.check_context_groundedness(query_text, chunks)
-    t_guard2_end = time.perf_counter()
-    guard_lat += (t_guard2_end - t_guard2_start) * 1000.0
+    guard_lat += (time.perf_counter() - t_guard2_start) * 1000.0
 
     if not grounded:
-        t_total_end = time.perf_counter()
-        tot_lat = (t_total_end - t_total_start) * 1000.0
-        backend_lat = ret_lat + guard_lat  # retrieval + guardrails only
+        tot_lat = (time.perf_counter() - t_total_start) * 1000.0
+        backend_lat = ret_lat + guard_lat
         return QueryResponse(
             query=query_text,
             stt_provider=req.stt_provider,
@@ -195,13 +211,18 @@ async def process_voice_rag_query(req: QueryRequest):
             grounded=False,
             grounding_score=ground_score,
             refusal_reason=ground_msg,
+            retrieval_backend=retrieval_backend,
             stt_latency_ms=stt_lat,
             retrieval_latency_ms=ret_lat,
             guardrail_latency_ms=guard_lat,
             llm_latency_ms=0.0,
+            embed_latency_ms=comp.get("embed", 0.0),
+            vector_search_latency_ms=comp.get("search", 0.0),
+            record_lookup_latency_ms=comp.get("lookup", 0.0),
+            candidate_chunk_latency_ms=comp.get("chunk", 0.0),
             backend_latency_ms=backend_lat,
             total_latency_ms=tot_lat,
-            latency_target_met=(backend_lat <= 200.0),
+            latency_target_met=(tot_lat <= 200.0),
             lang=req.lang
         )
 
@@ -211,27 +232,42 @@ async def process_voice_rag_query(req: QueryRequest):
         retrieved_chunks=chunks
     )
 
-    t_total_end = time.perf_counter()
-    tot_lat = (t_total_end - t_total_start) * 1000.0
+    # 6. Post-generation hallucination check (answer must be grounded in context)
+    t_guard3_start = time.perf_counter()
+    answer_grounded, ans_score, ans_msg = RAGGuardrails.check_answer_groundedness(llm_res.get("answer", ""), chunks)
+    guard_lat += (time.perf_counter() - t_guard3_start) * 1000.0
+
+    tot_lat = (time.perf_counter() - t_total_start) * 1000.0
     backend_lat = ret_lat + guard_lat + llm_lat  # Excludes STT
+
+    final_answer = llm_res.get("answer", "")
+    refusal_reason = None
+    if not answer_grounded:
+        final_answer = ans_msg
+        refusal_reason = f"post_generation_ungrounded (score={ans_score:.3f})"
 
     return QueryResponse(
         query=query_text,
         stt_provider=req.stt_provider,
         strategy_used=req.strategy,
-        answer=llm_res.get("answer", ""),
-        grounded=True,
-        grounding_score=ground_score,
-        refusal_reason=None,
-        llm_provider=llm_res.get("provider", "ollama_cloud"),
-        llm_model=llm_res.get("model", "nemotron-3-ultra"),
+        answer=final_answer,
+        grounded=answer_grounded,
+        grounding_score=ans_score,
+        refusal_reason=refusal_reason,
+        llm_provider=llm_res.get("provider"),
+        llm_model=llm_res.get("model"),
+        retrieval_backend=retrieval_backend,
         stt_latency_ms=stt_lat,
         retrieval_latency_ms=ret_lat,
         guardrail_latency_ms=guard_lat,
         llm_latency_ms=llm_lat,
+        embed_latency_ms=comp.get("embed", 0.0),
+        vector_search_latency_ms=comp.get("search", 0.0),
+        record_lookup_latency_ms=comp.get("lookup", 0.0),
+        candidate_chunk_latency_ms=comp.get("chunk", 0.0),
         backend_latency_ms=backend_lat,
         total_latency_ms=tot_lat,
-        latency_target_met=(backend_lat <= 200.0),
+        latency_target_met=(tot_lat <= 200.0),
         lang=req.lang
     )
 
@@ -248,17 +284,27 @@ def get_chunking_strategies():
             "bm25_indexed": True
         }
     return {
-        "active_strategies": list(stats.keys()),
-        "strategy_stats": stats,
+        "active_strategies": [
+            "passage_aware", "fixed_size", "sentence_based", "semantic", "metadata_aware"
+        ],
+        "kb_candidate_strategies": {
+            "passage_aware": "Whole translated passage per chunk (dataset is passage-aligned)",
+            "fixed_size": "Character window with overlap",
+            "sentence_based": "Sentence groups (Devanagari-aware boundaries)",
+            "semantic": "Embedding-shift boundary detection on sentences",
+            "metadata_aware": "Sentence groups prefixed with type/language metadata"
+        },
+        "sample_strategy_stats": stats,
         "default_strategy": "sentence_based"
     }
-
 
 
 @app.get("/api/benchmark")
 def get_benchmark_summary():
     """Returns cached or live sub-200ms benchmark statistics."""
-    bench_file = os.path.join(os.path.dirname(__file__), "..", "benchmarks", "results.json")
+    bench_file = os.path.join(os.path.dirname(__file__), "..", "benchmarks", "results_pipeline.json")
+    if not os.path.exists(bench_file):
+        bench_file = os.path.join(os.path.dirname(__file__), "..", "benchmarks", "results.json")
     if os.path.exists(bench_file):
         try:
             import json
@@ -268,22 +314,19 @@ def get_benchmark_summary():
             pass
 
     return {
-        "status": "preliminary",
-        "P50_ms": 48.5,
-        "P70_ms": 72.1,
-        "P100_ms": 142.0,
-        "target_ms": 200.0,
-        "total_queries_tested": 100,
-        "under_200ms_percentage": 100.0
+        "status": "no_benchmark_run_yet",
+        "message": "Run benchmarks/run_pipeline_benchmark.py to generate pipeline P50/P70/P100 numbers.",
+        "target_ms": 200.0
     }
 
 
 @app.get("/api/knowledge-bases")
 def get_knowledge_bases():
-    """Returns info about loaded knowledge base FAISS indexes from knowledge_base/ directory."""
+    """Returns info about loaded local FAISS knowledge bases and their record stores."""
     ret_engine = get_retriever_inst()
     kb_list = []
     for kb_key, kb_data in ret_engine.kb_indexes.items():
+        store = kb_data.get("record_store")
         kb_list.append({
             "id": kb_key,
             "lang_code": kb_data.get("lang_code", kb_key),
@@ -292,10 +335,15 @@ def get_knowledge_bases():
             "index_type": kb_data.get("index_type", "IVFPQ"),
             "embedding_model": kb_data.get("embedding_model", "unknown"),
             "dataset": kb_data.get("dataset", "unknown"),
+            "nprobe": kb_data.get("nprobe"),
+            "backend": "local_faiss",
+            "record_store": store.stats() if store is not None else {"available": False},
         })
+
     return {
         "knowledge_bases": kb_list,
         "total_loaded": len(kb_list),
+        "retrieval_backend": "local_faiss_ivfpq",
     }
 
 
