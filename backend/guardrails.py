@@ -22,8 +22,8 @@ class RAGGuardrails:
 
     # Hindi unsafe / off-topic patterns (Devanagari)
     HINDA_UNSAFE = [
-        r"\bवायरस\b", r"\बम\b", r"\हत्या\b", r"\चोट\b", r"\आत्महत्या\b",
-        r"\उत्पीडन\b", r"\धमकी\b"
+        r"वायरस", r"बम", r"हत्या", r"आत्महत्या",
+        r"उत्पीडन", r"धमकी"
     ]
 
     HINDA_OFFTOPIC = [
@@ -86,7 +86,7 @@ class RAGGuardrails:
             if not text:
                 continue
             for w in text.replace("\n", " ").split():
-                w clean = w.strip(".,!?;:'\"").lower()
+                w_clean = w.strip(".,!?;:'\"").lower()
                 if len(w_clean) > 3:
                     chunk_terms.add(w_clean)
 
