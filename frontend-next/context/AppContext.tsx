@@ -47,7 +47,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setMounted(true);
-    fetch("/api/benchmark")
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+    fetch(`${backendUrl}/api/benchmark`)
       .then((r) => r.json())
       .then((d) => setBenchData(d))
       .catch(() => {});

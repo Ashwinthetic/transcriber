@@ -77,7 +77,8 @@ export default function RecordPage() {
       router.push("/result");
 
       try {
-        const res = await fetch("/api/query", {
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+        const res = await fetch(`${backendUrl}/api/query`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
