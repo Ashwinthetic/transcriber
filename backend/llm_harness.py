@@ -42,8 +42,8 @@ class LLMHarness:
         self._cache: Dict[str, Tuple[Dict[str, Any], float]] = {}
         self._max_cache_size = int(os.getenv("LLM_CACHE_MAX_ENTRIES", "256"))
 
-        # Retry / timeout configuration (4.0s max timeout for fast voice response)
-        self.default_timeout = float(os.getenv("LLM_TIMEOUT_SECONDS", "4.0"))
+        # Retry / timeout configuration (10.0s timeout for Ollama Cloud API)
+        self.default_timeout = float(os.getenv("LLM_TIMEOUT_SECONDS", "10.0"))
         self.max_retries = int(os.getenv("LLM_MAX_RETRIES", "2"))
         self.retry_backoff = float(os.getenv("LLM_RETRY_BACKOFF", "0.5"))
         self.warm = False
@@ -58,7 +58,7 @@ class LLMHarness:
 
     def _is_ollama_cloud(self) -> bool:
         """Check if we're using Ollama Cloud API vs local Ollama."""
-        return bool(self.ollama_key) and "ollama.com" in self.ollama_base_url
+        return bool(self.ollama_key and len(self.ollama_key) > 5)
 
     def _get_ollama_url(self) -> str:
         """Get the appropriate Ollama API endpoint."""
