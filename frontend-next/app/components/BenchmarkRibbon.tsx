@@ -46,10 +46,10 @@ export default function BenchmarkRibbon({
   // Number counting animation
   useEffect(() => {
     const values = [
-      typeof data.P50_ms === "number" ? data.P50_ms : 16.61,
+      typeof data?.P50_ms === "number" ? data.P50_ms : 16.61,
       48.50,
-      typeof data.P100_ms === "number" ? data.P100_ms : 35.95,
-      typeof data.under_200ms_percentage === "number" ? data.under_200ms_percentage : 100
+      typeof data?.P100_ms === "number" ? data.P100_ms : 35.95,
+      typeof data?.under_200ms_percentage === "number" ? data.under_200ms_percentage : 100
     ];
     valRefs.current.forEach((el, i) => {
       if (!el) return;
