@@ -402,6 +402,29 @@ class FAISSRetriever:
             }
             print(f"✅ Strategy '{st}': Indexed {len(all_chunks)} chunks into FAISS & BM25.")
 
+    def retrieve_with_components(
+        self,
+        query: str,
+        strategy: str = "sentence_based",
+        top_k: int = 3,
+        lang: str = "",
+    ) -> Tuple[List[Dict[str, Any]], float, Dict[str, float]]:
+        """Retrieves with per-component latency breakdown.
+        
+        Returns (chunks, total_latency_ms, component_latencies_dict).
+        Component dict keys: embed, search, lookup, chunk (for KB path)
+        or empty dict for legacy path.
+        """
+        if lang and lang in self.kb_indexes:
+            return self.retrieve_from_kb(
+                query, lang=lang, top_k=top_k, strategy=strategy
+            )
+        
+        # Legacy sample path - no component breakdown available
+        t_start = time.perf_counter()
+        chunks, lat = self.retrieve(query, strategy=strategy, top_k=top_k, lang=lang)
+        return chunks, lat, {}
+
     def retrieve(
         self,
         query: str,
