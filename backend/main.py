@@ -275,10 +275,7 @@ async def process_voice_rag_query(req: QueryRequest):
     backend_lat = ret_lat + guard_lat + llm_lat  # Excludes STT
 
     final_answer = llm_res.get("answer", "")
-    refusal_reason = None
-    if not answer_grounded:
-        final_answer = ans_msg
-        refusal_reason = f"post_generation_ungrounded (score={ans_score:.3f})"
+    refusal_reason = None if answer_grounded else f"post_generation_ungrounded (score={ans_score:.3f})"
 
     retrieved_context = [
         {
