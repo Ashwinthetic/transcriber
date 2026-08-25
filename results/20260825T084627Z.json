@@ -1,0 +1,109 @@
+{
+  "meta": {
+    "target_root": "C:\\transcriber",
+    "generation_backend": "unknown",
+    "generation_model_hint": "unknown",
+    "language": "hin",
+    "split": "validation",
+    "num_answerable": 5,
+    "num_unanswerable": 5,
+    "num_examples": 10,
+    "num_chunks": 222,
+    "top_k": 5,
+    "seed": 42,
+    "num_errored": 0
+  },
+  "retrieval": {
+    "check": "retrieval (reference-based)",
+    "num_evaluated": 5,
+    "top_k": 5,
+    "cross_lingual": {
+      "recall_at_k": {
+        "1": 0.4,
+        "3": 0.8,
+        "5": 1.0
+      },
+      "mrr": 0.65
+    },
+    "same_language": {
+      "recall_at_k": {
+        "1": 0.4,
+        "3": 0.8,
+        "5": 1.0
+      },
+      "mrr": 0.65
+    }
+  },
+  "faithfulness": {
+    "check": "faithfulness / hallucination (reference-free, LLM-as-judge)",
+    "num_evaluated": 0,
+    "error": "OPENAI_API_KEY not configured -- judge-based checks skipped."
+  },
+  "correctness": {
+    "check": "correctness (reference-based, LLM-as-judge)",
+    "num_evaluated": 0,
+    "error": "OPENAI_API_KEY not configured -- judge-based checks skipped."
+  },
+  "reliability": {
+    "check": "reliability / \"lying factor\" (answerable-vs-answered 2x2)",
+    "num_answerable_evaluated": 5,
+    "num_unanswerable_evaluated": 5,
+    "false_refusal_rate": 0.0,
+    "false_refusal_examples": [],
+    "false_confidence_rate": 1.0,
+    "false_confidence_examples": [
+      {
+        "query": "can you marinate different meats together",
+        "fabricated_answer": "Although you can marinade meats and vegetables together, there are several reasons why you probably shouldn't."
+      },
+      {
+        "query": "what is the scorebridge app used for",
+        "fabricated_answer": "Dcorebridge can try it out for free with a scorebridge for mac of 10 files per transfer, and the full purchase price is 20."
+      },
+      {
+        "query": "what is ruthenian",
+        "fabricated_answer": "It is also known as Ruthene or Ruthenian in English."
+      },
+      {
+        "query": "brett desmond net worth",
+        "fabricated_answer": "Dermot Desmond: Net Worth: $2 Billion: Date Of Birth: 1950-08-14: Profession: Miscellaneous Crew: Education: St Augustine's and Good Counsel College, New Ross: Nationality: Irish: Spouse: Pat Desmond:"
+      },
+      {
+        "query": "weather channel redmond oregon hourly",
+        "fabricated_answer": "find local weather Copyright © 2017 Redmond Hourly Weather, Weather by the hour, Redmond Oregon hourly, Redmond OR Hourly Weather, 24 hour, 48 hour forecast, Redmond OR, 24 hour and 48 hour weather, r"
+      }
+    ]
+  },
+  "latency": {
+    "check": "latency",
+    "num_evaluated": 10,
+    "embed": {
+      "avg_ms": 28.9,
+      "p50_ms": 29.06,
+      "p95_ms": 33.89,
+      "p99_ms": 33.94
+    },
+    "search": {
+      "avg_ms": 0.17,
+      "p50_ms": 0.13,
+      "p95_ms": 0.38,
+      "p99_ms": 0.43
+    },
+    "retrieval_total": {
+      "avg_ms": 28.95,
+      "p50_ms": 28.22,
+      "p95_ms": 34.17,
+      "p99_ms": 34.23
+    },
+    "generation": {
+      "avg_ms": 0.2,
+      "p50_ms": 0.18,
+      "p95_ms": 0.28,
+      "p99_ms": 0.3
+    },
+    "retrieval_latency_budget_ms": 50.0,
+    "retrieval_within_budget": true,
+    "generation_latency_target_ms": 1500.0,
+    "generation_within_target": true
+  }
+}
