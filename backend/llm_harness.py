@@ -42,9 +42,9 @@ class LLMHarness:
         self._cache: Dict[str, Tuple[Dict[str, Any], float]] = {}
         self._max_cache_size = int(os.getenv("LLM_CACHE_MAX_ENTRIES", "256"))
 
-        # Retry / timeout configuration (10.0s timeout for Ollama Cloud API)
-        self.default_timeout = float(os.getenv("LLM_TIMEOUT_SECONDS", "10.0"))
-        self.max_retries = int(os.getenv("LLM_MAX_RETRIES", "2"))
+        # Retry / timeout configuration (1.8s max timeout for fast voice response)
+        self.default_timeout = float(os.getenv("LLM_TIMEOUT_SECONDS", "1.8"))
+        self.max_retries = int(os.getenv("LLM_MAX_RETRIES", "1"))
         self.retry_backoff = float(os.getenv("LLM_RETRY_BACKOFF", "0.5"))
         self.warm = False
 
