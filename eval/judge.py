@@ -84,11 +84,18 @@ _pace_lock = threading.Lock()
 _pace_last_call = 0.0
 
 
+_judge_disabled_reason: str | None = None
+
+
 def _pace_judge_call() -> None:
-    global _pace_last_call
+    global _pace_last_call, _judge_disabled_reason
+    if _judge_disabled_reason is not None:
+        raise JudgeNotConfigured(_judge_disabled_reason)
     if _JUDGE_MIN_INTERVAL_S <= 0:
         return
     with _pace_lock:
+        if _judge_disabled_reason is not None:
+            raise JudgeNotConfigured(_judge_disabled_reason)
         now = time.monotonic()
         wait = _pace_last_call + _JUDGE_MIN_INTERVAL_S - now
         if wait > 0:
@@ -100,7 +107,10 @@ def _pace_judge_call() -> None:
 
 def _retry_on_rate_limit(call):
     """Calls `call()` up to _JUDGE_MAX_RETRIES times, sleeping through
-    RateLimitError (respecting Retry-After when present)."""
+    transient short RateLimitError (respecting Retry-After when present)."""
+    global _judge_disabled_reason
+    if _judge_disabled_reason is not None:
+        raise JudgeNotConfigured(_judge_disabled_reason)
     last_exc = None
     for attempt in range(_JUDGE_MAX_RETRIES + 1):
         _pace_judge_call()
@@ -108,6 +118,11 @@ def _retry_on_rate_limit(call):
             return call()
         except Exception as e:  # noqa: BLE001 -- re-raised unless it's a 429
             status = getattr(e, "status_code", None)
+            err_msg = str(e).lower()
+            # Daily rate limit, quota exhaustion, or invalid auth should fail fast with no retries
+            if "quota" in err_msg or "requests per day" in err_msg or "billing" in err_msg or "rpd" in err_msg or status in (401, 403):
+                _judge_disabled_reason = f"Judge rate limit / quota exceeded: {e}"
+                raise JudgeNotConfigured(_judge_disabled_reason) from e
             if status != 429 or attempt >= _JUDGE_MAX_RETRIES:
                 raise
             last_exc = e
@@ -116,6 +131,9 @@ def _retry_on_rate_limit(call):
                 retry_after = float(e.response.headers.get("retry-after"))  # type: ignore[union-attr]
             except Exception:
                 pass
+            if retry_after and retry_after > 15.0:
+                _judge_disabled_reason = f"Judge rate limit retry-after too large ({retry_after:.1f}s): {e}"
+                raise JudgeNotConfigured(_judge_disabled_reason) from e
             time.sleep(max(retry_after or 0.0, _JUDGE_MIN_INTERVAL_S))
     raise last_exc  # pragma: no cover
 
@@ -209,17 +227,22 @@ def _call_openai(system_prompt: str, user_content: str) -> JudgeVerdict:
         _openai_client = openai.OpenAI()
 
     t0 = time.perf_counter()
-    response = _retry_on_rate_limit(
-        lambda: _openai_client.chat.completions.create(
-            model=JUDGE_MODEL_OPENAI,
-            max_completion_tokens=200,
-            response_format={"type": "json_object"},
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_content},
-            ],
+    try:
+        response = _retry_on_rate_limit(
+            lambda: _openai_client.chat.completions.create(
+                model=JUDGE_MODEL_OPENAI,
+                max_completion_tokens=200,
+                response_format={"type": "json_object"},
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_content},
+                ],
+            )
         )
-    )
+    except (openai.RateLimitError, openai.AuthenticationError, openai.APIConnectionError, JudgeNotConfigured) as e:
+        raise JudgeNotConfigured(f"OpenAI judge unavailable: {e}") from e
+    except Exception as e:
+        raise JudgeNotConfigured(f"OpenAI judge call failed: {e}") from e
     judge_ms = (time.perf_counter() - t0) * 1000
     raw = (response.choices[0].message.content or "").strip()
     verdict, reason = _parse_verdict(raw)
@@ -270,11 +293,22 @@ def _call_anthropic(system_prompt: str, user_content: str) -> JudgeVerdict:
     return JudgeVerdict(verdict=verdict, reason=reason, judge_ms=judge_ms, provider="anthropic", raw=raw)
 
 
+_judge_disabled_reason: str | None = None
+
+
 def _call_judge(system_prompt: str, user_content: str) -> JudgeVerdict:
-    provider = _resolve_provider()
-    if provider == "anthropic":
-        return _call_anthropic(system_prompt, user_content)
-    return _call_openai(system_prompt, user_content)
+    global _judge_disabled_reason
+    if _judge_disabled_reason is not None:
+        raise JudgeNotConfigured(_judge_disabled_reason)
+
+    try:
+        provider = _resolve_provider()
+        if provider == "anthropic":
+            return _call_anthropic(system_prompt, user_content)
+        return _call_openai(system_prompt, user_content)
+    except JudgeNotConfigured as e:
+        _judge_disabled_reason = str(e)
+        raise
 
 
 _FAITHFULNESS_SYSTEM = """You are a strict fact-checking judge for a retrieval-augmented \
