@@ -1,0 +1,126 @@
+{
+  "meta": {
+    "target_root": "C:\\Users\\adity\\OneDrive\\Documents\\Transcriber\\transcriber",
+    "generation_backend": "unknown",
+    "generation_model_hint": "unknown",
+    "language": "hin",
+    "split": "validation",
+    "num_answerable": 3,
+    "num_unanswerable": 3,
+    "num_examples": 6,
+    "num_chunks": 133,
+    "top_k": 5,
+    "seed": 42,
+    "num_errored": 0
+  },
+  "retrieval": {
+    "check": "retrieval (reference-based)",
+    "num_evaluated": 3,
+    "top_k": 5,
+    "cross_lingual": {
+      "recall_at_k": {
+        "1": 0.3333,
+        "3": 1.0,
+        "5": 1.0
+      },
+      "mrr": 0.6667
+    },
+    "same_language": {
+      "recall_at_k": {
+        "1": 0.3333,
+        "3": 1.0,
+        "5": 1.0
+      },
+      "mrr": 0.6667
+    }
+  },
+  "faithfulness": {
+    "check": "faithfulness / hallucination (reference-free, LLM-as-judge)",
+    "num_evaluated": 6,
+    "faithful_rate": 0.8333,
+    "hallucination_rate": 0.1667,
+    "num_confident_answers": 6,
+    "self_report_precision": 0.8333,
+    "self_report_disagreements": [
+      {
+        "query": "what is the scorebridge app used for",
+        "answer": "Dcorebridge can try it out for free with a scorebridge for mac of 10 files per transfer, and the full purchase price is 20.",
+        "judge_reason": "The context mentions a free trial with 10 files per transfer and a purchase price of 20, but not that Dcorebridge can try it out for free in that wording."
+      }
+    ],
+    "hallucinated_examples": [
+      {
+        "query": "what is the scorebridge app used for",
+        "answer": "Dcorebridge can try it out for free with a scorebridge for mac of 10 files per transfer, and the full purchase price is 20.",
+        "judge_reason": "The context mentions a free trial with 10 files per transfer and a purchase price of 20, but not that Dcorebridge can try it out for free in that wording."
+      }
+    ]
+  },
+  "correctness": {
+    "check": "correctness (reference-based, LLM-as-judge)",
+    "num_evaluated": 3,
+    "correct_rate": 0.6667,
+    "incorrect_examples": [
+      {
+        "query": "how to find the surface area of a triangle",
+        "reference_answer": "To find the area of a triangle, multiply the base by the height, and then divide by 2. The division by 2 comes from the fact that a parallelogram can be divided into 2 triangles.",
+        "answer": "Solution: In this example, we are given the area of a triangle and one dimension, and we are asked to work backwards to find the other dimension.",
+        "judge_reason": "The answer does not explain the triangle area formula and instead talks about working backwards from a given area."
+      }
+    ]
+  },
+  "reliability": {
+    "check": "reliability / \"lying factor\" (answerable-vs-answered 2x2)",
+    "num_answerable_evaluated": 3,
+    "num_unanswerable_evaluated": 3,
+    "false_refusal_rate": 0.0,
+    "false_refusal_examples": [],
+    "false_confidence_rate": 1.0,
+    "false_confidence_examples": [
+      {
+        "query": "what is wealth gov and econ definition",
+        "fabricated_answer": "Definition of Wealth Wealth, in its simplest terms, is the value of all the resources that are possessed by an individual or society."
+      },
+      {
+        "query": "hexadecimal numbers to binary numbers",
+        "fabricated_answer": "To convert binary numbers into hexadecimal numbers we must first divide the binary number up into a 4-bit binary word which can have any value from 010 ( 00002 ) to 1510 ( 11112 ) representing the hex"
+      },
+      {
+        "query": "what is the scorebridge app used for",
+        "fabricated_answer": "Dcorebridge can try it out for free with a scorebridge for mac of 10 files per transfer, and the full purchase price is 20."
+      }
+    ]
+  },
+  "latency": {
+    "check": "latency",
+    "num_evaluated": 6,
+    "embed": {
+      "avg_ms": 14.62,
+      "p50_ms": 13.85,
+      "p95_ms": 20.89,
+      "p99_ms": 22.38
+    },
+    "search": {
+      "avg_ms": 0.08,
+      "p50_ms": 0.07,
+      "p95_ms": 0.13,
+      "p99_ms": 0.17
+    },
+    "retrieval_total": {
+      "avg_ms": 14.13,
+      "p50_ms": 12.65,
+      "p95_ms": 20.71,
+      "p99_ms": 22.48
+    },
+    "generation": {
+      "avg_ms": 5010.73,
+      "p50_ms": 5000.96,
+      "p95_ms": 5062.57,
+      "p99_ms": 5074.47
+    },
+    "retrieval_latency_budget_ms": 50.0,
+    "retrieval_within_budget": true,
+    "generation_latency_target_ms": 1500.0,
+    "generation_within_target": false
+  }
+}
