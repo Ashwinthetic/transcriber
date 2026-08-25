@@ -1,0 +1,109 @@
+{
+  "meta": {
+    "target_root": "C:\\Users\\adity\\OneDrive\\Documents\\Transcriber\\transcriber",
+    "generation_backend": "unknown",
+    "generation_model_hint": "unknown",
+    "language": "hin",
+    "split": "validation",
+    "num_answerable": 50,
+    "num_unanswerable": 50,
+    "num_examples": 100,
+    "num_chunks": 2391,
+    "top_k": 5,
+    "seed": 42,
+    "num_errored": 0
+  },
+  "retrieval": {
+    "check": "retrieval (reference-based)",
+    "num_evaluated": 50,
+    "top_k": 5,
+    "cross_lingual": {
+      "recall_at_k": {
+        "1": 0.56,
+        "3": 0.8,
+        "5": 0.9
+      },
+      "mrr": 0.693
+    },
+    "same_language": {
+      "recall_at_k": {
+        "1": 0.56,
+        "3": 0.8,
+        "5": 0.9
+      },
+      "mrr": 0.693
+    }
+  },
+  "faithfulness": {
+    "check": "faithfulness / hallucination (reference-free, LLM-as-judge)",
+    "num_evaluated": 0,
+    "error": "OPENAI_API_KEY not configured -- judge-based checks skipped."
+  },
+  "correctness": {
+    "check": "correctness (reference-based, LLM-as-judge)",
+    "num_evaluated": 0,
+    "error": "OPENAI_API_KEY not configured -- judge-based checks skipped."
+  },
+  "reliability": {
+    "check": "reliability / \"lying factor\" (answerable-vs-answered 2x2)",
+    "num_answerable_evaluated": 50,
+    "num_unanswerable_evaluated": 50,
+    "false_refusal_rate": 0.0,
+    "false_refusal_examples": [],
+    "false_confidence_rate": 1.0,
+    "false_confidence_examples": [
+      {
+        "query": "difference from phycol and psychiatrist",
+        "fabricated_answer": "1 Be aware of the difference between being a psychologist and a psychiatrist."
+      },
+      {
+        "query": "how to do citations in an essay",
+        "fabricated_answer": "Although a quote from an expert can add impact to your essay, in most cases you should try to either paraphrase or summarize the information, using citation to reference your source."
+      },
+      {
+        "query": "who is the person that created transformers",
+        "fabricated_answer": "Optimus Prime was created as the last of the Thirteen, the first generation of Transformers, each created directly by Primus as a band of unique warriors to combat and defeat Unicron."
+      },
+      {
+        "query": "can hyponatremia cause vertigo",
+        "fabricated_answer": "Aside from some medical conditions that are usually well recognized, there are really few conditions specific to sport that cause an altered level of consciousness, nausea, vomiting, lightheadness and"
+      },
+      {
+        "query": "erie insurance corporate address",
+        "fabricated_answer": "Write A Review For Erie Insurance Corporate Headquarters."
+      }
+    ]
+  },
+  "latency": {
+    "check": "latency",
+    "num_evaluated": 100,
+    "embed": {
+      "avg_ms": 127.51,
+      "p50_ms": 127.41,
+      "p95_ms": 141.45,
+      "p99_ms": 178.93
+    },
+    "search": {
+      "avg_ms": 0.4,
+      "p50_ms": 0.35,
+      "p95_ms": 0.69,
+      "p99_ms": 1.67
+    },
+    "retrieval_total": {
+      "avg_ms": 128.83,
+      "p50_ms": 127.07,
+      "p95_ms": 159.44,
+      "p99_ms": 182.48
+    },
+    "generation": {
+      "avg_ms": 0.18,
+      "p50_ms": 0.17,
+      "p95_ms": 0.23,
+      "p99_ms": 0.25
+    },
+    "retrieval_latency_budget_ms": 50.0,
+    "retrieval_within_budget": false,
+    "generation_latency_target_ms": 1500.0,
+    "generation_within_target": true
+  }
+}
