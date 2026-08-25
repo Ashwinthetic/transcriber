@@ -43,7 +43,7 @@ from pathlib import Path
 # affects what's written to the saved JSON report, which is opened with an
 # explicit encoding="utf-8" in eval/report.py's save_report().
 if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace", line_buffering=True)
 
 from eval import dataset, index_build, pipeline, target
 from eval import report as report_mod
